@@ -97,74 +97,31 @@ def parse_paper_regex(filepath: str) -> list[dict]:
     # 合并公式到定理
     return _merge_formulas_into_theorems(theorem_items, formula_items)
 
-def parse_paper_llm(filepath: str) -> list[dict]:
-    """LLM优先解析, 失败时回退到正则"""
-    from llm.extractor import extract_from_paper
-
+def parse_paper(filepath: str) -> tuple[dict, list[dict]]:
+    """解析单篇论文 — 纯正则提取"""
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
-
     title = ''
     m = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
     if m: title = m.group(1).strip()
-
     dirname = os.path.basename(os.path.dirname(filepath))
     pid = dirname.split('-')[0] if '-' in dirname else dirname
     year = pid[:4]
-
     meta = {'id': pid, 'title': title, 'year': year}
-
-    try:
-        llm_items = extract_from_paper(content, pid)
-        if llm_items:
-            for i, item in enumerate(llm_items):
-                num = item.get('number', '')
-                itype = item.get('type', 'theorem')
-                if not item.get('id'):
-                    item['id'] = f"{pid}_{itype}_{num}" if num else f"{pid}_{itype}_llm_{i}"
-                item['source_paper'] = pid
-                item['source_year'] = year
-                item['source_title'] = title
-                if 'formulas' not in item:
-                    item['formulas'] = []
-            return meta, llm_items
-    except Exception as e:
-        print(f"  LLM failed ({pid}): {e}, falling back to regex")
-
-    regex_items = parse_paper_regex(filepath)
-    for item in regex_items:
+    items = parse_paper_regex(filepath)
+    for item in items:
         item['source_paper'] = pid
         item['source_year'] = year
         item['source_title'] = title
-    return meta, regex_items
+    return meta, items
 
-def parse_paper(filepath: str, use_llm: bool = True) -> tuple[dict, list[dict]]:
-    if use_llm:
-        return parse_paper_llm(filepath)
-    else:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-        title = ''
-        m = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
-        if m: title = m.group(1).strip()
-        dirname = os.path.basename(os.path.dirname(filepath))
-        pid = dirname.split('-')[0] if '-' in dirname else dirname
-        year = pid[:4]
-        meta = {'id': pid, 'title': title, 'year': year}
-        items = parse_paper_regex(filepath)
-        for item in items:
-            item['source_paper'] = pid
-            item['source_year'] = year
-            item['source_title'] = title
-        return meta, items
-
-def load_all_papers(use_llm: bool = True) -> tuple[list[dict], list[dict]]:
+def load_all_papers() -> tuple[list[dict], list[dict]]:
     papers, all_items = [], []
     for root, dirs, files in os.walk(PAPERS_DIR):
         for f in files:
             if f.endswith('.correction.md'):
                 filepath = os.path.join(root, f)
-                meta, items = parse_paper(filepath, use_llm=use_llm)
+                meta, items = parse_paper(filepath)
                 papers.append(meta)
                 all_items.extend(items)
                 short_t = meta['title'][:50].encode('ascii', errors='replace').decode('ascii')

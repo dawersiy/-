@@ -1,7 +1,15 @@
 """去重编排 — 桶预筛 + LLM语义比较"""
 
 from collections import defaultdict
-from build_knowledge_graph import latex_signature  # 复用旧版结构签名
+import re as _re
+def latex_signature(latex):
+    if not latex: return ''
+    norm = _re.sub(r'\s+',' ',latex).strip()
+    norm = _re.sub(r'\b([a-zA-Z])\b(?=\s*[=+\-*/<>()[\]{}^_\\,;.])','X',norm)
+    norm = _re.sub(r'\b([a-zA-Z])_\{[^}]+}','XS',norm)
+    norm = _re.sub(r'\\[a-zA-Z]+','G',norm)
+    norm = _re.sub(r'\b\d+(?:\.\d+)?\b','N',norm)
+    return _re.sub(r'\s+','',norm)
 from difflib import SequenceMatcher
 
 def deduplicate_with_llm(all_items: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -42,19 +50,6 @@ def deduplicate_with_llm(all_items: list[dict]) -> tuple[list[dict], list[dict]]
                 elif len(si) > 25 and len(sj) > 25:
                     if SequenceMatcher(None, si, sj).ratio() > 0.92:
                         union(i, j)
-
-        # 对未合并的用LLM判断
-        try:
-            from llm.dedup import check_equivalence
-            for i in range(n):
-                for j in range(i + 1, n):
-                    if find(i) == find(j):
-                        continue
-                    result = check_equivalence(bitems[i], bitems[j])
-                    if result and result.get('relationship') in ('identical', 'equivalent') and result.get('confidence', 0) > 0.7:
-                        union(i, j)
-        except Exception as e:
-            print(f"  LLM去重跳过: {e}")
 
         # 按连通分量合并
         groups = defaultdict(list)

@@ -2,10 +2,18 @@
 
 from collections import defaultdict
 from difflib import SequenceMatcher
-from build_knowledge_graph import latex_signature
+import re as _re
+def latex_signature(latex):
+    if not latex: return ''
+    norm = _re.sub(r'\s+',' ',latex).strip()
+    norm = _re.sub(r'\b([a-zA-Z])\b(?=\s*[=+\-*/<>()[\]{}^_\\,;.])','X',norm)
+    norm = _re.sub(r'\b([a-zA-Z])_\{[^}]+}','XS',norm)
+    norm = _re.sub(r'\\[a-zA-Z]+','G',norm)
+    norm = _re.sub(r'\b\d+(?:\.\d+)?\b','N',norm)
+    return _re.sub(r'\s+','',norm)
 
-def discover_relations_with_llm(items: list[dict], max_pairs: int = 500) -> tuple[list[dict], list[dict]]:
-    """智能关系发现: 优先用LLM, 回退到启发式"""
+def discover_relations(items: list[dict]) -> tuple[list[dict], list[dict]]:
+    """启发式关系发现 — 纯本地, 无API依赖"""
 
     # 构建关键词索引
     kw_index = defaultdict(set)
@@ -15,7 +23,6 @@ def discover_relations_with_llm(items: list[dict], max_pairs: int = 500) -> tupl
 
     relations = []
     rel_set = set()
-    llm_count = 0
 
     for i, item_a in enumerate(items):
         type_a = item_a['type']
@@ -45,23 +52,6 @@ def discover_relations_with_llm(items: list[dict], max_pairs: int = 500) -> tupl
                 continue
 
             rel = None
-
-            # LLM判断 (限制最多max_pairs对)
-            if llm_count < max_pairs and score >= 4:
-                try:
-                    from llm.relations import discover_pair_relation
-                    result = discover_pair_relation(item_a, items[j])
-                    llm_count += 1
-                    if result and result.get('type') != 'none' and result.get('confidence', 0) > 0.6:
-                        rel = {
-                            'type': result['type'],
-                            'note': result.get('note', ''),
-                            'confidence': result.get('confidence', 0.7)
-                        }
-                except Exception as e:
-                    pass  # LLM失败, 回退到启发式
-
-            # 启发式回退
             if rel is None:
                 rel = heuristic_relation(item_a, items[j], type_a, type_b, score, common)
 
@@ -81,7 +71,7 @@ def discover_relations_with_llm(items: list[dict], max_pairs: int = 500) -> tupl
                     'confidence': rel.get('confidence', 0.6)
                 })
 
-    print(f"  关系发现: {len(relations)}条 (其中LLM判断: {llm_count}对)")
+    print(f"  关系发现: {len(relations)}条")
     return items, relations
 
 def heuristic_relation(item_a, item_b, type_a, type_b, score, common_kw):
