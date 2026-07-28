@@ -4,6 +4,22 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# ---- 加载 .env 文件 ----
+def _load_dotenv():
+    env_path = os.path.join(BASE_DIR, '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#') or '=' not in line:
+                    continue
+                key, _, val = line.partition('=')
+                key, val = key.strip(), val.strip()
+                if val and key not in os.environ:
+                    os.environ[key] = val
+
+_load_dotenv()
+
 # 路径
 PAPERS_DIR = os.path.join(BASE_DIR, 'papers')
 CACHE_DIR = os.path.join(BASE_DIR, 'llm_cache')
