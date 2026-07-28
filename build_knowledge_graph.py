@@ -249,7 +249,7 @@ def render_formulas(items):
 
 def generate_summaries(items, use_llm=True):
     """为每个item生成1-3句中文摘要"""
-    print("\n[5/8] 生成中文摘要...")
+    print("\n[4/8] 生成中文摘要...")
 
     if use_llm:
         try:
@@ -276,7 +276,7 @@ def generate_summaries(items, use_llm=True):
 
 def discover_relations(items, use_llm=True):
     """智能关系发现"""
-    print("\n[6/8] 发现关系...")
+    print("\n[5/8] 发现关系...")
 
     if use_llm:
         try:
@@ -297,7 +297,7 @@ def discover_relations(items, use_llm=True):
 
 def build_network(papers, items, merge_records, relations):
     """组装KnowledgeNetwork"""
-    print("\n[7/8] 组装知识网络...")
+    print("\n[6/8] 组装知识网络...")
 
     std_items = []
     for it in items:
@@ -359,7 +359,7 @@ def build_network(papers, items, merge_records, relations):
 
 def compute_graph_layout(network):
     """预计算力导向布局"""
-    print("\n[8/9] 预计算布局...")
+    print("\n[7/8] 预计算布局...")
     items = network['items']
     relations = network['relations_summary']
 
@@ -389,7 +389,7 @@ def compute_graph_layout(network):
 
 def output_results(network):
     """保存JSON和HTML"""
-    print("\n[9/9] 生成输出...")
+    print("\n[8/8] 生成输出...")
     save_network_json(network)
     generate_html(network)
 
@@ -432,22 +432,19 @@ def main():
     # [3] 去重
     items, merge_records = deduplicate(items, use_llm=use_llm)
 
-    # [4] LaTeX公式→SVG
-    items = render_formulas(items)
-
-    # [5] 摘要
+    # [4] 摘要
     items = generate_summaries(items, use_llm=use_llm)
 
-    # [6] 关系
+    # [5] 关系
     items, relations = discover_relations(items, use_llm=use_llm)
 
-    # [7] 组装
+    # [6] 组装
     network = build_network(papers, items, merge_records, relations)
 
-    # [8] 布局
+    # [7] 布局
     network = compute_graph_layout(network)
 
-    # [9] 输出
+    # [8] 输出
     output_results(network)
 
     elapsed = time.time() - t0

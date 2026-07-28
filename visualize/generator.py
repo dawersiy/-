@@ -47,10 +47,12 @@ def generate_html(network: dict = None):
         if item.get('conclusion'): d['cl'] = item['conclusion'][:300]
         if item.get('domain'): d['dm'] = item['domain'][:3]
         if item.get('confidence'): d['cf'] = item['confidence']
-        # SVG公式
-        svgs = item.get('_svgs', {})
-        if svgs:
-            d['sv'] = {k: v for k, v in list(svgs.items())[:6]}  # 最多6个SVG
+        # LaTeX公式 (原始代码)
+        formulas = item.get('formulas', [])
+        if item.get('latex'):
+            formulas.insert(0, item['latex'])
+        if formulas:
+            d['fm'] = [f[:800] for f in list(dict.fromkeys(formulas))[:6]]  # 去重, 最多6个
         if d:
             detail_map[str(idx)] = d
 
@@ -205,8 +207,8 @@ function showDetail(d){{
     h+=`<span class="type-badge" style="background:${{CM[d.t]}}">${{TCN[d.t]}}</span>`;
     h+=`<span style="margin-left:6px;font-size:10px;color:#78909c">${{d.s}} papers</span>`;
     if(dt.sm)h+=`<div class="summary-block">\\ud83d\\udcdd ${{dt.sm}}</div>`;
-    // SVG公式
-    if(dt.sv){{Object.values(dt.sv).forEach(svg=>{{h+=`<div class="formula-block">${{svg}}</div>`;}});}}
+    // LaTeX公式代码
+    if(dt.fm){{dt.fm.forEach(fx=>{{h+=`<div style="background:#0d1a22;border:1px solid #2a3a46;border-radius:5px;padding:12px;margin:4px 0;overflow-x:auto;font-size:13px;color:#ffd54f;font-family:monospace;white-space:pre-wrap">${{fx}}</div>`;}});}}
     if(dt.st)h+=`<div style="background:#0d1a22;border:1px solid #2a3a46;border-radius:5px;padding:8px;margin:4px 0;font-size:10px;color:#9e9e9e;max-height:150px;overflow-y:auto;line-height:1.5">${{dt.st}}</div>`;
     if(dt.pr)h+=`<div style="margin:4px 0;font-size:10px;color:#90caf9">\\u524d\\u63d0: ${{dt.pr}}</div>`;
     if(dt.cl)h+=`<div style="margin:4px 0;font-size:10px;color:#a5d6a7">\\u7ed3\\u8bba: ${{dt.cl}}</div>`;
