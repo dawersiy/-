@@ -1,0 +1,28 @@
+# LLM缓存
+llm_cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+
+# 虚拟环境
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code本地配置
+.claude/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 输出文件
+knowledge_network.json
+knowledge_network.html

@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(PYTHONIOENCODING=utf-8 python build_knowledge_graph.py)",
-      "Bash(python -c \"import json; d=json.load\\(open\\('knowledge_network.json','r',encoding='utf-8'\\)\\); print\\(f'Network: {d[\\\\\"network_name\\\\\"]}'\\); print\\(f'Papers: {len\\(d[\\\\\"papers\\\\\"]\\)}'\\); print\\(f'Items: {len\\(d[\\\\\"items\\\\\"]\\)}'\\); print\\(f'Merge records: {len\\(d[\\\\\"merge_records\\\\\"]\\)}'\\); print\\(f'Relations: {len\\(d[\\\\\"relations_summary\\\\\"]\\)}'\\); print\\(f'Stats: {json.dumps\\(d[\\\\\"statistics\\\\\"], indent=2\\)}'\\); print\\(\\); print\\('--- First 3 items ---'\\); [print\\(json.dumps\\(it, ensure_ascii=False, indent=2\\)\\) for it in d['items'][:3]]\")"
-    ]
-  }
-}
