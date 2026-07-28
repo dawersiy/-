@@ -73,7 +73,12 @@ def parse_papers(use_llm=True):
                 short = meta['title'][:55].encode('ascii', errors='replace').decode('ascii')
                 print(f"  [{meta['year']}] {short} -> {len(items)} items")
     print(f"  共 {len(papers)} 篇论文, {len(all_items)} 原始items")
-    return papers, all_items
+
+    # 过滤: 移除formula类型(已合并到定理中)
+    formula_count = sum(1 for it in all_items if it.get('type') == 'formula')
+    items = [it for it in all_items if it.get('type') != 'formula']
+    print(f"  去除 {formula_count} 公式项, 保留 {len(items)} 定理/引理项")
+    return papers, items
 
 # =============================================================================
 # 第2阶段: 关键词
@@ -207,12 +212,44 @@ def deduplicate(items, use_llm=True):
     return final, merge_records
 
 # =============================================================================
-# 第4阶段: 中文摘要
+# 第4阶段: LaTeX公式渲染
+# =============================================================================
+
+def render_formulas(items):
+    """使用本地TeXLive将所有LaTeX渲染为SVG"""
+    print("\n[4/8] 渲染LaTeX公式为SVG...")
+    try:
+        from pipeline.latex_renderer import render_latex_svg
+        count = 0
+        for item in items:
+            all_latex = []
+            if item.get('latex'):
+                all_latex.append(item['latex'])
+            for f in item.get('formulas', []):
+                if f not in all_latex:
+                    all_latex.append(f)
+
+            svgs = {}
+            for lx in all_latex:
+                svg = render_latex_svg(lx)
+                if svg:
+                    svgs[lx] = svg
+                    count += 1
+            if svgs:
+                item['_svgs'] = svgs
+
+        print(f"  渲染了 {count} 个SVG公式")
+    except Exception as e:
+        print(f"  SVG渲染跳过: {e}")
+    return items
+
+# =============================================================================
+# 第5阶段: 中文摘要
 # =============================================================================
 
 def generate_summaries(items, use_llm=True):
     """为每个item生成1-3句中文摘要"""
-    print("\n[4/8] 生成中文摘要...")
+    print("\n[5/8] 生成中文摘要...")
 
     if use_llm:
         try:
@@ -239,7 +276,7 @@ def generate_summaries(items, use_llm=True):
 
 def discover_relations(items, use_llm=True):
     """智能关系发现"""
-    print("\n[5/8] 发现关系...")
+    print("\n[6/8] 发现关系...")
 
     if use_llm:
         try:
@@ -260,7 +297,7 @@ def discover_relations(items, use_llm=True):
 
 def build_network(papers, items, merge_records, relations):
     """组装KnowledgeNetwork"""
-    print("\n[6/8] 组装知识网络...")
+    print("\n[7/8] 组装知识网络...")
 
     std_items = []
     for it in items:
@@ -287,6 +324,9 @@ def build_network(papers, items, merge_records, relations):
             'domain': it.get('domain',[]),
             'confidence': it.get('confidence',0.0),
             'proof_technique': it.get('proof_technique',''),
+            # 公式子项
+            'formulas': it.get('formulas', []),
+            '_svgs': it.get('_svgs', {}),
         }
         std_items.append(std_item)
 
@@ -319,7 +359,7 @@ def build_network(papers, items, merge_records, relations):
 
 def compute_graph_layout(network):
     """预计算力导向布局"""
-    print("\n[7/8] 预计算布局...")
+    print("\n[8/9] 预计算布局...")
     items = network['items']
     relations = network['relations_summary']
 
@@ -349,7 +389,7 @@ def compute_graph_layout(network):
 
 def output_results(network):
     """保存JSON和HTML"""
-    print("\n[8/8] 生成输出...")
+    print("\n[9/9] 生成输出...")
     save_network_json(network)
     generate_html(network)
 
@@ -392,19 +432,22 @@ def main():
     # [3] 去重
     items, merge_records = deduplicate(items, use_llm=use_llm)
 
-    # [4] 摘要
+    # [4] LaTeX公式→SVG
+    items = render_formulas(items)
+
+    # [5] 摘要
     items = generate_summaries(items, use_llm=use_llm)
 
-    # [5] 关系
+    # [6] 关系
     items, relations = discover_relations(items, use_llm=use_llm)
 
-    # [6] 组装
+    # [7] 组装
     network = build_network(papers, items, merge_records, relations)
 
-    # [7] 布局
+    # [8] 布局
     network = compute_graph_layout(network)
 
-    # [8] 输出
+    # [9] 输出
     output_results(network)
 
     elapsed = time.time() - t0

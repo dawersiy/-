@@ -1,10 +1,8 @@
-"""论文解析器 — 正则回退 + LLM精炼, 支持增量处理"""
+"""论文解析器 — 正则回退 + LLM精炼, 公式合并到最近定理"""
 
 import os, re, hashlib
 from config import PAPERS_DIR
-from pipeline.cache_manager import get_cache, set_cache
 
-# ---- 正则回退解析 (从原build_knowledge_graph.py移植) ----
 THM_RE = re.compile(
     r'(?:^|\n)\s*(THEOREM|Theorem|LEMMA|Lemma|COROLLARY|Corollary|'
     r'DEFINITION|Definition|PROPOSITION|Proposition)\s*(\d+(?:\.\d+)*)?\.?\s*',
@@ -13,12 +11,40 @@ DISPLAY_RE = re.compile(r'\$\$\s*(.+?)\s*\$\$', re.DOTALL)
 SECT_RE = re.compile(r'(?:^|\n)#{1,3}\s+')
 PROOF_RE = re.compile(r'(?:^|\n)(?:Proof|PROOF)\.?\s')
 REF_RE = re.compile(r'(?:^|\n)#{1,3}\s+REFERENCE', re.IGNORECASE)
+TAG_FORMULA_RE = re.compile(r'\$\$\s*(.+?)\s*\\tag\s*\{(.+?)\}\s*\$\$', re.DOTALL)
 
 TYPE_MAP = {'theorem':'theorem','lemma':'lemma','corollary':'corollary',
             'definition':'definition','proposition':'proposition'}
 
+def _merge_formulas_into_theorems(theorem_items: list[dict], formula_items: list[dict]) -> list[dict]:
+    """将公式合并到位置最近的定理中"""
+    for fi in formula_items:
+        fi['_formula_pos'] = fi.get('position', 0)
+
+    # 按位置排序
+    all_ordered = sorted(theorem_items + formula_items,
+                         key=lambda x: x.get('position', x.get('_formula_pos', 0)))
+
+    result = []
+    current_theorem = None
+
+    for item in all_ordered:
+        if item.get('type') != 'formula':
+            result.append(item)
+            current_theorem = item
+        else:
+            # 合并到最近的定理
+            if current_theorem is not None:
+                formulas = current_theorem.setdefault('formulas', [])
+                formulas.append(item['latex'])
+                # 如果定理没有主latex, 使用第一个公式
+                if not current_theorem.get('latex'):
+                    current_theorem['latex'] = item['latex']
+
+    return result
+
 def parse_paper_regex(filepath: str) -> list[dict]:
-    """正则回退解析 (旧版逻辑, 用于LLM不可用时)"""
+    """正则解析: 定理提取 + 公式合并到最近定理"""
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
 
@@ -31,7 +57,7 @@ def parse_paper_regex(filepath: str) -> list[dict]:
     for m in REF_RE.finditer(content): boundaries.append(m.start())
     boundaries.sort()
 
-    items = []
+    theorem_items = []
     for i, m in enumerate(THM_RE.finditer(content)):
         itype = TYPE_MAP.get(m.group(1).lower(), 'theorem')
         num = m.group(2) or ''
@@ -45,28 +71,31 @@ def parse_paper_regex(filepath: str) -> list[dict]:
         formulas = [f.strip() for f in DISPLAY_RE.findall(statement)]
         latex = formulas[0] if formulas else ''
 
-        items.append({
+        theorem_items.append({
             'id': item_id, 'type': itype, 'number': num, 'name': name,
             'statement': statement[:2000], 'latex': latex,
+            'formulas': formulas[1:] if len(formulas) > 1 else [],
             'premises': '', 'conclusion': '',
-            'proof_technique': '', 'confidence': 0.5
+            'proof_technique': '', 'confidence': 0.5,
+            'position': m.start()
         })
 
-    # Tagged formulas
-    for i, m in enumerate(re.finditer(r'\$\$\s*(.+?)\s*\\tag\s*\{(.+?)\}\s*\$\$', content, re.DOTALL)):
+    # 带tag公式
+    formula_items = []
+    for i, m in enumerate(TAG_FORMULA_RE.finditer(content)):
         latex_str = m.group(1).strip()
         if len(latex_str) > 20:
-            tag = m.group(2).strip()
-            items.append({
-                'id': f"{pid}_eq_{i}", 'type': 'formula', 'number': tag,
-                'name': f"Eq ({tag})",
+            formula_items.append({
+                'id': f"{pid}_eq_{i}", 'type': 'formula', 'number': m.group(2).strip(),
+                'name': f"Eq ({m.group(2).strip()})",
                 'statement': latex_str, 'latex': latex_str,
                 'premises': '', 'conclusion': '',
-                'proof_technique': '', 'confidence': 0.5
+                'proof_technique': '', 'confidence': 0.5,
+                'position': m.start()
             })
-    return items
 
-# ---- LLM增强解析 ----
+    # 合并公式到定理
+    return _merge_formulas_into_theorems(theorem_items, formula_items)
 
 def parse_paper_llm(filepath: str) -> list[dict]:
     """LLM优先解析, 失败时回退到正则"""
@@ -75,7 +104,6 @@ def parse_paper_llm(filepath: str) -> list[dict]:
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # 提取标题和年份
     title = ''
     m = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
     if m: title = m.group(1).strip()
@@ -86,11 +114,9 @@ def parse_paper_llm(filepath: str) -> list[dict]:
 
     meta = {'id': pid, 'title': title, 'year': year}
 
-    # 尝试LLM提取
     try:
         llm_items = extract_from_paper(content, pid)
         if llm_items:
-            # 给每个item附加来源信息和ID
             for i, item in enumerate(llm_items):
                 num = item.get('number', '')
                 itype = item.get('type', 'theorem')
@@ -99,11 +125,12 @@ def parse_paper_llm(filepath: str) -> list[dict]:
                 item['source_paper'] = pid
                 item['source_year'] = year
                 item['source_title'] = title
+                if 'formulas' not in item:
+                    item['formulas'] = []
             return meta, llm_items
     except Exception as e:
-        print(f"  LLM提取失败 ({pid}): {e}, 使用正则回退")
+        print(f"  LLM failed ({pid}): {e}, falling back to regex")
 
-    # 回退到正则
     regex_items = parse_paper_regex(filepath)
     for item in regex_items:
         item['source_paper'] = pid
@@ -112,11 +139,9 @@ def parse_paper_llm(filepath: str) -> list[dict]:
     return meta, regex_items
 
 def parse_paper(filepath: str, use_llm: bool = True) -> tuple[dict, list[dict]]:
-    """解析单篇论文, 返回 (meta, items)"""
     if use_llm:
         return parse_paper_llm(filepath)
     else:
-        # 仅正则模式
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
         title = ''
@@ -134,10 +159,7 @@ def parse_paper(filepath: str, use_llm: bool = True) -> tuple[dict, list[dict]]:
         return meta, items
 
 def load_all_papers(use_llm: bool = True) -> tuple[list[dict], list[dict]]:
-    """加载全部论文, 返回 (papers_meta, all_items)"""
-    papers = []
-    all_items = []
-
+    papers, all_items = [], []
     for root, dirs, files in os.walk(PAPERS_DIR):
         for f in files:
             if f.endswith('.correction.md'):
@@ -146,11 +168,7 @@ def load_all_papers(use_llm: bool = True) -> tuple[list[dict], list[dict]]:
                 papers.append(meta)
                 all_items.extend(items)
                 short_t = meta['title'][:50].encode('ascii', errors='replace').decode('ascii')
-                print(f"  [{meta['year']}] {short_t} -> {len(items)} items")
-
+                n_theorems = sum(1 for it in items if it.get('type') != 'formula')
+                n_formulas = sum(1 for it in items if it.get('type') == 'formula')
+                print(f"  [{meta['year']}] {short_t} -> {n_theorems} thm + {n_formulas} eq")
     return papers, all_items
-
-def compute_paper_hash(filepath: str) -> str:
-    """计算论文内容的SHA256哈希"""
-    with open(filepath, 'r', encoding='utf-8') as f:
-        return hashlib.sha256(f.read().encode()).hexdigest()[:16]

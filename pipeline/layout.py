@@ -6,16 +6,14 @@ from config import LAYOUT_WIDTH, LAYOUT_HEIGHT
 TYPE_CENTERS = {
     'theorem': (LAYOUT_WIDTH * 0.30, LAYOUT_HEIGHT * 0.30),
     'lemma': (LAYOUT_WIDTH * 0.15, LAYOUT_HEIGHT * 0.55),
-    'corollary': (LAYOUT_WIDTH * 0.45, LAYOUT_HEIGHT * 0.20),
+    'corollary': (LAYOUT_WIDTH * 0.50, LAYOUT_HEIGHT * 0.20),
     'definition': (LAYOUT_WIDTH * 0.10, LAYOUT_HEIGHT * 0.30),
-    'proposition': (LAYOUT_WIDTH * 0.45, LAYOUT_HEIGHT * 0.60),
-    'formula': (LAYOUT_WIDTH * 0.70, LAYOUT_HEIGHT * 0.45),
+    'proposition': (LAYOUT_WIDTH * 0.50, LAYOUT_HEIGHT * 0.60),
 }
 
-# 节点最小间距 (不同类型的node有不同的最小间距)
 MIN_DIST = {
-    'theorem': 45, 'lemma': 35, 'corollary': 30,
-    'definition': 40, 'proposition': 35, 'formula': 22
+    'theorem': 50, 'lemma': 40, 'corollary': 35,
+    'definition': 45, 'proposition': 40,
 }
 
 def compute_layout(nodes: list[dict], links: list[dict], iterations: int = 600) -> list[dict]:
