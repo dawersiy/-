@@ -1,11 +1,12 @@
-"""论文解析器 — 正则回退 + LLM精炼, 公式合并到最近定理"""
+"""论文解析器 — 正则提取 + 公式合并到最近定理"""
 
-import os, re, hashlib
+import os, re
 from config import PAPERS_DIR
 
+# 定理/引理标记 — 必须在行首
 THM_RE = re.compile(
-    r'(?:^|\n)\s*(THEOREM|Theorem|LEMMA|Lemma|COROLLARY|Corollary|'
-    r'DEFINITION|Definition|PROPOSITION|Proposition)\s*(\d+(?:\.\d+)*)?\.?\s*',
+    r'(?:^|\n)[ \t]*(THEOREM|Theorem|LEMMA|Lemma|COROLLARY|Corollary|'
+    r'DEFINITION|Definition|PROPOSITION|Proposition)[ \t]+(\d+(?:\.\d+)*)?\.?',
     re.MULTILINE)
 DISPLAY_RE = re.compile(r'\$\$\s*(.+?)\s*\$\$', re.DOTALL)
 SECT_RE = re.compile(r'(?:^|\n)#{1,3}\s+')
@@ -51,22 +52,41 @@ def parse_paper_regex(filepath: str) -> list[dict]:
     dirname = os.path.basename(os.path.dirname(filepath))
     pid = dirname.split('-')[0] if '-' in dirname else dirname
 
+    # 收集所有边界: 节标题、证明、参考文献、以及下一个定理的开始
     boundaries = []
     for m in SECT_RE.finditer(content): boundaries.append(m.start())
     for m in PROOF_RE.finditer(content): boundaries.append(m.start())
     for m in REF_RE.finditer(content): boundaries.append(m.start())
+
+    # 找到所有定理标记, 同时加入边界列表
+    thm_matches = []
+    for m in THM_RE.finditer(content):
+        thm_matches.append(m)
+        boundaries.append(m.start())  # 定理开始 = 前一个定理结束
+
     boundaries.sort()
+    boundaries = list(dict.fromkeys(boundaries))
 
     theorem_items = []
-    for i, m in enumerate(THM_RE.finditer(content)):
+    for i, m in enumerate(thm_matches):
         itype = TYPE_MAP.get(m.group(1).lower(), 'theorem')
         num = m.group(2) or ''
-        name = f"{itype.capitalize()} {num}".strip()
+        # 尝试从上下文中补充编号
+        if not num:
+            # 检查前面是否提到编号
+            pre = content[max(0,m.start()-5):m.start()]
+            post = content[m.end():m.end()+5]
+            pass  # 保持无编号
+
+        name = f"{itype.capitalize()} {num}".strip() if num else f"{itype.capitalize()}"
         item_id = f"{pid}_{itype}_{num}" if num else f"{pid}_{itype}_{i}"
-        start = m.end()
+
+        start = m.end()  # 从标记行尾开始
         end = len(content)
         for b in boundaries:
-            if b > start: end = b; break
+            if b > start:
+                end = b
+                break
         statement = content[start:end].strip()[:3000]
         formulas = [f.strip() for f in DISPLAY_RE.findall(statement)]
         latex = formulas[0] if formulas else ''

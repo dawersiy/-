@@ -7,9 +7,8 @@ def latex_signature(latex):
     norm = _re.sub(r'\s+',' ',latex).strip()
     norm = _re.sub(r'\b([a-zA-Z])\b(?=\s*[=+\-*/<>()[\]{}^_\\,;.])','X',norm)
     norm = _re.sub(r'\b([a-zA-Z])_\{[^}]+}','XS',norm)
-    norm = _re.sub(r'\\[a-zA-Z]+','G',norm)
     norm = _re.sub(r'\b\d+(?:\.\d+)?\b','N',norm)
-    return _re.sub(r'\s+','',norm)
+    return _re.sub(r'\s+','',norm)[:200]
 from difflib import SequenceMatcher
 
 def deduplicate_with_llm(all_items: list[dict]) -> tuple[list[dict], list[dict]]:

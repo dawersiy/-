@@ -28,13 +28,17 @@ from visualize.generator import generate_html, save_network_json
 # LaTeX 结构签名 (去重用)
 # ============================================================================
 def latex_signature(latex):
+    """结构签名: 保留关键数学结构, 仅替换变量名和数字"""
     if not latex: return ''
     norm = re.sub(r'\s+', ' ', latex).strip()
+    # 替换单字母变量 (但保留关键运算符上下文)
     norm = re.sub(r'\b([a-zA-Z])\b(?=\s*[=+\-*/<>()[\]{}^_\\,;.])', 'X', norm)
+    # 替换带下标变量
     norm = re.sub(r'\b([a-zA-Z])_\{[^}]+}', 'XS', norm)
-    norm = re.sub(r'\\[a-zA-Z]+', 'G', norm)
+    # 替换数字
     norm = re.sub(r'\b\d+(?:\.\d+)?\b', 'N', norm)
-    return re.sub(r'\s+', '', norm)
+    # 保留前100字符的详细签名 (而非全部压缩为G)
+    return re.sub(r'\s+', '', norm)[:200]
 
 # ============================================================================
 # 关键词 (正则)
@@ -95,6 +99,12 @@ def deduplicate(items):
 
         for i in range(n):
             for j in range(i+1,n):
+                # 同论文的不同编号项不合并
+                ni, nj = bitems[i].get('name',''), bitems[j].get('name','')
+                pi = bitems[i].get('source_paper','') or bitems[i].get('sources',[''])[0]
+                pj = bitems[j].get('source_paper','') or bitems[j].get('sources',[''])[0]
+                if pi == pj and ni != nj:
+                    continue
                 si, sj = latex_signature(bitems[i].get('latex','')), latex_signature(bitems[j].get('latex',''))
                 if not si or not sj: continue
                 if si == sj: union(i,j)
@@ -165,9 +175,11 @@ def build_network(papers, items, merge_records, relations):
 def main():
     parser = argparse.ArgumentParser(description='数学知识图谱构建')
     parser.add_argument('--paper', type=str, default='', help='解析单篇论文并输出JSON')
+    parser.add_argument('--export', type=str, default='', help='导出原始items到JSON (供Claude Code分析)')
+    parser.add_argument('--enrich', type=str, default='', help='加载Claude Code富化后的items JSON')
     args = parser.parse_args()
 
-    # 单篇论文模式 (供 Claude Code 调用)
+    # 单篇论文模式
     if args.paper:
         filepath = args.paper
         items = parse_paper_regex(filepath)
@@ -176,21 +188,63 @@ def main():
         print(json.dumps(items, ensure_ascii=False, indent=2))
         return
 
+    # 导出模式: 输出所有原始items供Claude Code处理
+    if args.export:
+        print("导出原始items...")
+        papers, items = load_all_papers()
+        items = [it for it in items if it.get('type')!='formula']
+        items = assign_keywords(items)
+        # 只导出关键字段
+        export = [{'id':it['id'],'type':it['type'],'name':it['name'],
+                   'latex':it.get('latex','')[:500],'statement':it.get('statement','')[:1000],
+                   'keywords':it.get('keywords',[]),'source_paper':it.get('source_paper','')}
+                  for it in items]
+        with open(args.export, 'w', encoding='utf-8') as f:
+            json.dump(export, f, ensure_ascii=False, indent=2)
+        print(f"  已导出 {len(export)} items → {args.export}")
+        return
+
+    # 加载Claude Code富化数据
+    enriched = {}
+    if args.enrich:
+        with open(args.enrich, 'r', encoding='utf-8') as f:
+            enriched_data = json.load(f)
+        for it in enriched_data:
+            if it.get('id'):
+                enriched[it['id']] = it
+        print(f"  加载了 {len(enriched)} 条Claude Code富化数据")
+
     print("="*60)
-    print("数学知识图谱构建 (Claude Code + Regex)")
+    mode = "Claude Code增强" if enriched else "Regex"
+    print(f"数学知识图谱构建 ({mode})")
     print("="*60)
     t0 = time.time()
 
     # [1] 解析
     print("\n[1/6] 解析论文...")
     papers, items = load_all_papers()
-    # 过滤公式
     n_f = sum(1 for it in items if it.get('type')=='formula')
     items = [it for it in items if it.get('type')!='formula']
     print(f"  共 {len(papers)} 篇, {len(items)} 项 (去除 {n_f} 公式)")
 
-    # [2] 关键词
+    # 合并Claude Code富化数据 (Claude Code为权威来源, 完全替换字段)
+    if enriched:
+        for it in items:
+            eid = it.get('id','')
+            if eid in enriched:
+                e = enriched[eid]
+                # Claude Code字段完全替换正则结果
+                for key in ('keywords','domain','summary','premises','conclusion',
+                           'proof_technique','confidence','name','statement','latex'):
+                    if e.get(key):
+                        it[key] = e[key]
+        print(f"  Claude Code富化: {len(enriched)} 项已权威替换")
+
+    # [2] 关键词 (正则回退: 仅对没有关键词的item)
     print("\n[2/6] 关键词...")
+    for it in items:
+        if not it.get('keywords'):
+            it['keywords'] = [it['type']]
     items = assign_keywords(items)
 
     # [3] 去重
@@ -206,13 +260,29 @@ def main():
     print("\n[5/6] 组装 + 布局...")
     network = build_network(papers, items, merge_records, relations)
 
-    # 准备布局数据
+    # 准备布局数据: 关系链接 + 同论文链接(低权重)
     id_to_idx = {it['id']: i for i, it in enumerate(network['items'])}
     layout_links = []
     for rel in relations:
         si, ti = id_to_idx.get(rel.get('source_id','')), id_to_idx.get(rel.get('target_id',''))
         if si is not None and ti is not None:
-            layout_links.append({'source_index': si, 'target_index': ti, 'type': rel.get('type','')})
+            layout_links.append({'source_index': si, 'target_index': ti,
+                                 'type': rel.get('type',''), 'weight': 1.0})
+
+    # 同论文节点加低权重边 (让同论文的节点轻微聚拢)
+    paper_groups = {}
+    for i, it in enumerate(network['items']):
+        for src in it.get('sources', []):
+            paper_groups.setdefault(src, []).append(i)
+    sp_count = 0
+    for pid, indices in paper_groups.items():
+        for a in range(len(indices)):
+            for b in range(a+1, min(a+6, len(indices))):  # 每节点最多连5个同论文节点
+                layout_links.append({'source_index': indices[a], 'target_index': indices[b],
+                                     'type': 'same_paper', 'weight': 0.15})
+                sp_count += 1
+    print(f"  关系边: {len(relations)}, 同论文边: {sp_count}")
+
     network['items'] = compute_layout(network['items'], layout_links)
     print(f"  布局完成: {len(network['items'])} 节点")
 
