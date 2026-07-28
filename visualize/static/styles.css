@@ -1,0 +1,39 @@
+/* 数学知识图谱 2D可视化 — 深色主题样式 */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1923;color:#e0e0e0;overflow:hidden;height:100vh}
+#container{display:flex;height:100vh}
+#graph{flex:1;position:relative;background:radial-gradient(ellipse at center,#1a3040 0%,#0f1923 70%)}
+#graph svg{width:100%;height:100%}
+#sidebar{width:360px;background:#1a2a36;border-left:1px solid #2a3a46;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;font-size:12px}
+#sidebar h2{color:#64b5f6;font-size:13px;border-bottom:1px solid #2a3a46;padding-bottom:4px;text-transform:uppercase;letter-spacing:1px;font-weight:500}
+#stats{display:flex;flex-wrap:wrap;gap:5px}
+.stat-chip{background:#1e3a4a;border:1px solid #2a4a5a;border-radius:5px;padding:3px 8px;font-size:10px;display:flex;align-items:center;gap:5px}
+.stat-chip .dot{width:7px;height:7px;border-radius:50%}
+#legend{display:flex;flex-wrap:wrap;gap:5px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;padding:2px 6px;background:#1e3a4a;border-radius:4px}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.legend-line{width:16px;height:2px;border-radius:1px}
+#detail{flex:1;background:#15232e;border-radius:8px;padding:12px;overflow-y:auto;font-size:11px;border:1px solid #2a3a46;min-height:120px}
+#detail h3{color:#64b5f6;margin-bottom:4px;font-size:13px}
+#detail .type-badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;margin-bottom:4px;color:#fff}
+#detail .latex-block{background:#0d1a22;border:1px solid #2a3a46;border-radius:5px;padding:10px;margin:6px 0;overflow-x:auto;font-size:12px;color:#ffd54f;font-family:'Courier New',monospace;white-space:pre-wrap}
+#detail .summary-block{background:#1a2e1a;border:1px solid #2a4a2a;border-radius:5px;padding:8px;margin:6px 0;font-size:11px;color:#a5d6a7;line-height:1.5}
+#search{width:100%;padding:8px 12px;background:#0d1a22;border:1px solid #2a4a46;border-radius:5px;color:#e0e0e0;font-size:12px;outline:none}
+#search:focus{border-color:#64b5f6}
+#filter-row{display:flex;gap:3px;flex-wrap:wrap}
+.fbtn{padding:3px 8px;border-radius:12px;border:1px solid #2a4a46;background:transparent;color:#90a4ae;font-size:10px;cursor:pointer;transition:all 0.2s}
+.fbtn:hover,.fbtn.active{background:#1e3a4a;color:#fff;border-color:#64b5f6}
+#rel-list{font-size:10px}
+.rel-item{padding:5px 6px;border-bottom:1px solid #2a3a46;cursor:pointer;border-radius:3px}
+.rel-item:hover{background:#1e3a4a}
+.tooltip{position:absolute;background:#1a2a36;border:1px solid #64b5f6;border-radius:6px;padding:8px 12px;pointer-events:none;font-size:11px;max-width:300px;box-shadow:0 6px 18px rgba(0,0,0,0.4);z-index:100;opacity:0}
+.node{cursor:pointer}
+.node circle{stroke-width:2;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3))}
+.node text{font-size:9px;fill:#b0bec5;pointer-events:none}
+.link{stroke-opacity:0.35}
+.link:hover{stroke-opacity:1}
+.zoom-ctl{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:3px}
+.zbtn{width:32px;height:32px;border-radius:5px;background:#1a2a36;border:1px solid #2a4a46;color:#90a4ae;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zbtn:hover{background:#2a3a46;color:#fff}
+#loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#64b5f6;font-size:16px;z-index:200}
+.hidden{display:none!important}

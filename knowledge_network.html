@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学知识图谱 — 优化理论</title>
+<link rel="stylesheet" href="visualize/static/styles.css">
+</head>
+<body>
+<div id="container">
+<div id="graph">
+    <svg></svg>
+    <div class="tooltip" id="tooltip"></div>
+    <div id="loading">加载知识网络数据...</div>
+    <div class="zoom-ctl">
+        <button class="zbtn" id="zin">+</button>
+        <button class="zbtn" id="zout">-</button>
+        <button class="zbtn" id="zfit">F</button>
+    </div>
+</div>
+<div id="sidebar">
+    <h2>📊 知识图谱控制台</h2>
+    <input type="text" id="search" placeholder="🔍 搜索定理、公式、关键词...">
+    <div id="filter-row">
+        <button class="fbtn active" data-type="all">全部</button>
+        <button class="fbtn" data-type="theorem">定理</button>
+        <button class="fbtn" data-type="lemma">引理</button>
+        <button class="fbtn" data-type="corollary">推论</button>
+        <button class="fbtn" data-type="definition">定义</button>
+        <button class="fbtn" data-type="proposition">命题</button>
+        <button class="fbtn" data-type="formula">公式</button>
+    </div>
+    <div id="stats"></div>
+    <h2>🎨 图例</h2>
+    <div id="legend"></div>
+    <h2>📝 节点详情</h2>
+    <div id="detail"><p style="color:#607d8b">点击图中节点查看详细信息</p></div>
+    <h2>🔗 关联关系</h2>
+    <div id="rel-list"></div>
+</div>
+</div>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="visualize/static/graph.js"></script>
+</body>
+</html>
