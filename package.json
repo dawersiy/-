@@ -1,0 +1,15 @@
+{
+  "name": "math-knowledge-graph",
+  "version": "1.0.0",
+  "description": "Mathematical Knowledge Graph — Optimization Theory Visualization",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["knowledge-graph", "optimization", "mathematics", "d3js"],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
