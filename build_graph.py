@@ -240,15 +240,24 @@ def main():
                         it[key] = e[key]
         print(f"  Claude Code富化: {len(enriched)} 项已权威替换")
 
-    # [2] 关键词 (正则回退: 仅对没有关键词的item)
+    # [2] 关键词 (正则回退)
     print("\n[2/6] 关键词...")
     for it in items:
         if not it.get('keywords'):
             it['keywords'] = [it['type']]
     items = assign_keywords(items)
 
+    # [2.5] Claude Code 自动富化 (如有API Key)
+    if not args.enrich:  # 未手动指定enrich文件时, 自动尝试Claude API
+        try:
+            from pipeline.enricher import enrich_items
+            print("\n[2.5/6] Claude Code 自动富化...")
+            items = enrich_items(items)
+        except Exception as e:
+            print(f"  Claude富化跳过: {e}")
+
     # [3] 去重
-    print("\n[3/6] 去重...")
+    print("\n[3/7] 去重...")
     items, merge_records = deduplicate(items)
     print(f"  合并后: {len(items)} 项, {len(merge_records)} 合并")
 
