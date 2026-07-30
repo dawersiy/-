@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学知识图谱 — 优化理论 · 项目展示</title>
+<style>
+:root{--bg:#0d1520;--card:#131e2a;--border:#1e3040;--text:#b0c0d0;--acc:#5b9bd5;--gold:#e2b04a;--dim:#506070;--red:#ff5252;--blue:#448aff;--green:#69f0ae;--orange:#ffab40;--purple:#e040fb;--pink:#ff80ab}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+#slides{width:100%;height:100%;position:relative}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateX(60px);transition:all 0.45s ease;pointer-events:none;padding:36px 48px}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.slide.prev{opacity:0;transform:translateX(-60px)}
+.slide-inner{max-width:1050px;width:100%;max-height:92vh;overflow-y:auto;scrollbar-width:thin}
+h1{font-size:2.8em;font-weight:700;color:#e0e8f0;margin-bottom:12px;line-height:1.2}
+h1 .accent{color:var(--acc)}
+h2{font-size:1.8em;font-weight:600;color:var(--acc);margin-bottom:16px;border-bottom:2px solid var(--border);padding-bottom:8px}
+h3{font-size:1.15em;font-weight:600;color:#d0d8e0;margin:14px 0 6px}
+h4{font-size:1em;font-weight:600;color:var(--acc);margin-bottom:4px}
+p,li{font-size:1em;line-height:1.65;color:var(--text)}
+.subtitle{font-size:1.1em;color:var(--dim);margin-top:6px}
+.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.8em;margin:2px;font-weight:500}
+.tag-red{background:#3d1520;color:var(--red);border:1px solid #5d2530}
+.tag-blue{background:#152540;color:var(--blue);border:1px solid #253560}
+.tag-green{background:#152d20;color:var(--green);border:1px solid #255030}
+.tag-orange{background:#3d2515;color:var(--orange);border:1px solid #5d3515}
+.tag-purple{background:#2d153d;color:var(--purple);border:1px solid #4d2560}
+.tag-pink{background:#3d1530;color:var(--pink);border:1px solid #5d2545}
+.metrics{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 28px;text-align:center;min-width:120px;flex:1}
+.metric .num{font-size:2.2em;font-weight:700;color:var(--acc)}
+.metric .label{font-size:0.85em;color:var(--dim);margin-top:2px}
+.metric.small .num{font-size:1.5em}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:0.9em}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{color:var(--acc);font-weight:600;font-size:0.8em;text-transform:uppercase;letter-spacing:0.5px}
+tr:hover{background:rgba(255,255,255,0.015)}
+.code-block{background:#0a121c;border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin:8px 0;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:0.85em;color:var(--gold);white-space:pre;overflow-x:auto;line-height:1.55}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0;font-size:0.85em}
+.flow-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;text-align:center}
+.flow-arrow{color:var(--acc);font-size:1.1em}
+.tree{font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:0.85em;line-height:1.75;white-space:pre;color:var(--text)}
+.tree .b{color:var(--acc)}
+.tree .l{color:var(--gold)}
+.tree .d{color:var(--dim)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.card h4{color:var(--acc);margin-bottom:4px;font-size:0.95em}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.note{font-size:0.85em;color:var(--dim);margin:6px 0;font-style:italic}
+#nav{position:fixed;bottom:20px;right:20px;z-index:100;display:flex;gap:6px;align-items:center}
+#nav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:1.1em;cursor:pointer;transition:all 0.15s}
+#nav button:hover{background:#1a2e40;border-color:var(--acc);color:#fff}
+#page-num{font-size:0.8em;color:var(--dim);min-width:55px;text-align:center}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--acc);z-index:101;transition:width 0.4s}
+.highlight{color:var(--gold)}
+.normal{color:var(--text)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="slides">
+
+<!-- ====== 1. COVER ====== -->
+<div class="slide active" data-slide="0"><div class="slide-inner" style="text-align:center">
+<h1>数学知识图谱<br><span class="accent">优化理论</span></h1>
+<p class="subtitle">从 26 篇经典论文中自动提取定理 · 构建去重知识网络 · 生成交互式 2D 可视化</p>
+<div style="margin-top:32px;display:flex;gap:10px;justify-content:center">
+<span class="tag tag-blue">Claude Code</span><span class="tag tag-orange">Python Pipeline</span><span class="tag tag-green">D3.js</span><span class="tag tag-red">Regex Engine</span><span class="tag tag-purple">TeX Live</span>
+</div>
+<p style="margin-top:28px;color:var(--dim)">1964 — 2006 · Optimization Theory & Proximal Algorithms</p>
+<p style="margin-top:4px;color:var(--dim);font-size:0.85em">github.com/dawersiy/-</p>
+</div></div>
+
+<!-- ====== 2. MOTIVATION ====== -->
+<div class="slide" data-slide="1"><div class="slide-inner">
+<h2>项目动机</h2>
+<div class="grid-2">
+<div class="card"><h4>问题</h4>
+<p>优化理论领域 50 年间积累了海量定理、引理和算法。研究者需要反复查阅多篇论文来理解某一结果的前置依赖、推广关系和等价形式。</p>
+<p style="margin-top:8px">传统文献综述只能线性呈现，无法展示定理之间的<span class="highlight">复杂网络结构</span>。</p></div>
+<div class="card"><h4>解决方案</h4>
+<p>构建自动化知识图谱系统，从论文 Markdown 中提取所有数学断言，建立<span class="highlight">推导 / 依赖 / 推广 / 等价</span>四维关系网络。</p>
+<p style="margin-top:8px">生成交互式 2D 可视化，研究者可直观探索跨论文的知识关联。</p></div>
+</div>
+<div class="metrics" style="margin-top:12px">
+<div class="metric"><div class="num">26</div><div class="label">论文</div></div>
+<div class="metric"><div class="num">315</div><div class="label">提取条目</div></div>
+<div class="metric"><div class="num">5,162</div><div class="label">关系</div></div>
+<div class="metric"><div class="num">5</div><div class="label">关系类型</div></div>
+</div>
+</div></div>
+
+<!-- ====== 3. PAPER COVERAGE ====== -->
+<div class="slide" data-slide="2"><div class="slide-inner">
+<h2>论文覆盖</h2>
+<table>
+<tr><th>年代</th><th>作者</th><th>核心贡献</th></tr>
+<tr><td>1964</td><td>Polyak</td><td>重球法 (Heavy Ball)、多步迭代加速收敛</td></tr>
+<tr><td>1976</td><td>Rockafellar</td><td>单调算子、近端点算法 (Proximal Point Algorithm)</td></tr>
+<tr><td>1979</td><td>Lions &amp; Mercier</td><td>非线性算子之和的分裂算法</td></tr>
+<tr><td>1983</td><td>Nesterov</td><td>加速梯度法 O(1/k²) 收敛率</td></tr>
+<tr><td>1991</td><td>Güler</td><td>近端点算法凸极小化收敛性</td></tr>
+<tr><td>1992</td><td>Güler</td><td>新型近端点算法</td></tr>
+<tr><td>1995</td><td>Bonnans, Gilbert, Lemaréchal, Sagastizábal</td><td>变度量近端方法族</td></tr>
+<tr><td>1997</td><td>Burachik, Iusem, Svaiter</td><td>极大单调算子的 Enlargement 理论</td></tr>
+</table>
+</div></div>
+
+<!-- ====== 4. PAPER COVERAGE 2 ====== -->
+<div class="slide" data-slide="3"><div class="slide-inner">
+<h2>论文覆盖 (续)</h2>
+<table>
+<tr><th>年代</th><th>作者</th><th>核心贡献</th></tr>
+<tr><td>1997</td><td>Burke &amp; Qian</td><td>单调算子变度量近端点算法</td></tr>
+<tr><td>1999</td><td>Burke &amp; Qian</td><td>变度量近端点超线性收敛</td></tr>
+<tr><td>1999</td><td>Chen &amp; Fukushima</td><td>非光滑凸优化的拟牛顿近端方法</td></tr>
+<tr><td>2000</td><td>Alvarez</td><td>二阶耗散系统极小化性质 (Hilbert 空间)</td></tr>
+<tr><td>2000</td><td>Attouch, Goudou, Redont</td><td>重球摩擦法连续动力系统</td></tr>
+<tr><td>2000</td><td>Alvarez &amp; Attouch</td><td>极大单调算子的惯性近端方法</td></tr>
+<tr><td>2001</td><td>Burachik &amp; Svaiter</td><td>混合 Extragradient-Proximal Point 鲁棒性</td></tr>
+<tr><td>2003</td><td>Moudafi, Oliny</td><td>单调算子分裂惯性近端方法</td></tr>
+</table>
+</div></div>
+
+<!-- ====== 5. PAPER COVERAGE 3 ====== -->
+<div class="slide" data-slide="4"><div class="slide-inner">
+<h2>论文覆盖 (续)</h2>
+<table>
+<tr><th>年代</th><th>作者</th><th>核心贡献</th></tr>
+<tr><td>2003</td><td>Moudafi</td><td>拟变分不等式的惯性近端方法</td></tr>
+<tr><td>2004</td><td>Combettes</td><td>平均非扩张算子合成解单调包含问题</td></tr>
+<tr><td>2004</td><td>Nemirovski</td><td>变分不等式近端法 O(1/T) 收敛率</td></tr>
+<tr><td>2004</td><td>Nesterov</td><td>凸优化导论 (经典教材级讲义)</td></tr>
+<tr><td>2005</td><td>Combettes &amp; Wajs</td><td>近端前向后向分裂信号恢复</td></tr>
+<tr><td>2005</td><td>Cabot</td><td>缓消失项控制的近端点算法</td></tr>
+<tr><td>2006</td><td>Auslender &amp; Teboulle</td><td>内点梯度与近端方法 (凸与锥优化)</td></tr>
+<tr><td>2006</td><td>Baji &amp; Cabot</td><td>干摩擦惯性近端算法 (有限收敛性)</td></tr>
+</table>
+</div></div>
+
+<!-- ====== 6. SYSTEM ARCHITECTURE ====== -->
+<div class="slide" data-slide="5"><div class="slide-inner">
+<h2>系统架构</h2>
+<div class="flow" style="flex-direction:column;align-items:stretch;gap:4px;margin:16px 0">
+<div style="display:flex;align-items:center;gap:6px;justify-content:center">
+<div class="flow-box" style="background:#1a2535;border-color:#3a5060;min-width:180px"><b>Claude Code</b><br><span style="font-size:0.8em;color:var(--dim)">智能分析引擎</span></div>
+</div>
+<div style="text-align:center;color:var(--acc);font-size:1.2em">↕ prompts/</div>
+<div style="display:flex;align-items:center;gap:6px;justify-content:center">
+<div class="flow-box">正则解析</div><span class="flow-arrow">→</span>
+<div class="flow-box">关键词标注</div><span class="flow-arrow">→</span>
+<div class="flow-box">结构去重</div><span class="flow-arrow">→</span>
+<div class="flow-box">关系发现</div><span class="flow-arrow">→</span>
+<div class="flow-box">力导向布局</div>
+</div>
+<div style="text-align:center;color:var(--acc);font-size:1.2em">↕</div>
+<div style="display:flex;align-items:center;gap:6px;justify-content:center">
+<div class="flow-box" style="background:#1a2535;border-color:#3a5060;min-width:180px"><b>D3.js 可视化</b><br><span style="font-size:0.8em;color:var(--dim)">交互式 2D 图谱</span></div>
+</div>
+</div>
+<div class="metrics" style="margin-top:8px">
+<div class="metric small"><div class="num">10</div><div class="label">源文件</div></div>
+<div class="metric small"><div class="num">0</div><div class="label">核心依赖</div></div>
+<div class="metric small"><div class="num">~8s</div><div class="label">总耗时</div></div>
+<div class="metric small"><div class="num">885KB</div><div class="label">HTML 大小</div></div>
+</div>
+</div></div>
+
+<!-- ====== 7. PIPELINE OVERVIEW ====== -->
+<div class="slide" data-slide="6"><div class="slide-inner">
+<h2>处理管道 — 六阶段全流程</h2>
+<div class="flow" style="flex-direction:column;gap:4px;font-size:0.82em">
+<div style="display:flex;gap:6px"><div class="flow-box" style="flex:1"><b>[1] 解析</b><br>引用感知定理提取</div><div class="flow-box" style="flex:1"><b>[2] 关键词</b><br>正则 + Claude 增强</div><div class="flow-box" style="flex:1"><b>[3] 去重</b><br>结构签名 + 语义比对</div></div>
+<div style="display:flex;gap:6px"><div class="flow-box" style="flex:1"><b>[4] 摘要</b><br>Claude API 中文摘要</div><div class="flow-box" style="flex:1"><b>[5] 关系</b><br>四维关系启发式发现</div><div class="flow-box" style="flex:1"><b>[6] 布局+输出</b><br>中心辐射 + HTML 生成</div></div>
+</div>
+<div class="card" style="margin-top:8px">
+<h4>关键指标</h4>
+<div class="tree">
+<span class="b">输入:</span> 26 篇 Markdown 论文 (<span class="l">~5MB 文本</span>)
+<span class="b">输出:</span> knowledge_network.json (<span class="l">3MB</span>) + knowledge_network.html (<span class="l">885KB</span>)
+<span class="b">耗时:</span> <span class="l">~8 秒</span> (正则模式) / <span class="l">~3 分钟</span> (含 Claude API 全量富化)
+<span class="b">缓存:</span> SHA256 磁盘缓存, 重复运行零 API 调用
+</div>
+</div>
+</div></div>
+
+<!-- ====== 8. STAGE 1 - SCAN ====== -->
+<div class="slide" data-slide="7"><div class="slide-inner">
+<h2>阶段一 · 引用感知定理扫描</h2>
+<div class="grid-2">
+<div class="card"><h4>正则匹配</h4>
+<div class="code-block">r'(?:^|\n)[ \t]*(THEOREM|Theorem|LEMMA|Lemma|
+  COROLLARY|Corollary|DEFINITION|Definition|
+  PROPOSITION|Proposition)[ \t]+(\d+)\.?'</div>
+<p style="font-size:0.85em">必须出现在行首, 必须有编号, 可选句点</p></div>
+<div class="card"><h4>引用过滤规则</h4>
+<div class="tree">
+<span class="b">前文检查</span> (±35 字符):
+  <span class="b">├─</span> "by|using|from|see|in|of|applying|to|and"
+     → <span class="l">引用, 丢弃</span>
+<span class="b">后文检查</span> (+15 字符):
+  <span class="b">├─</span> ", p." "(see" "["
+     → <span class="l">引用, 丢弃</span>
+<span class="b">行内检查</span>:
+  <span class="b">└─</span> 不在行首且前一行为长文本
+     → <span class="l">很可能引用, 丢弃</span>
+</div></div>
+</div>
+<p class="note">核心改进: 区分 "Theorem 3, p.32" (论文内引用) 与真正的 "Theorem 3." (声明)</p>
+</div></div>
+
+<!-- ====== 9. STAGE 2 - BOUNDARY ====== -->
+<div class="slide" data-slide="8"><div class="slide-inner">
+<h2>阶段二 · 多点边界定理体分割</h2>
+<div class="card" style="margin-bottom:8px"><h4>边界集合构建</h4>
+<div class="code-block">boundaries = set()
+# 结构边界
+for m in SECTION.finditer(content):  boundaries.add(m.start())
+for m in REFERENCES.finditer(content): boundaries.add(m.start())
+# 内容边界
+for m in PROOF_START.finditer(content): boundaries.add(m.start())
+# 相邻定理边界 (关键!)
+for decl in declarations:  boundaries.add(decl['start'])</div></div>
+<div class="card"><h4>二次裁剪</h4>
+<div class="tree">
+<span class="b">一次提取:</span>
+  body = content[<span class="l">decl.end()</span> : <span class="l">next_boundary</span>]
+<span class="b">二次裁剪:</span>
+  <span class="b">├─</span> proof_m = PROOF_START.search(body)
+  <span class="b">│   </span> → body = body[<span class="l">:proof_m.start()</span>]
+  <span class="b">└─</span> for d2 in declarations:
+       if d2 in body → body = body[<span class="l">:d2.start - body_start</span>]
+</div>
+<p style="margin-top:6px;font-size:0.85em">定理声明自身作为前一个定理的结束边界 → 消除语句渗漏</p></div>
+</div></div>
+
+<!-- ====== 10. STAGE 3 - FORMULA ====== -->
+<div class="slide" data-slide="9"><div class="slide-inner">
+<h2>阶段三 · 公式提取与 ID 分配</h2>
+<div class="grid-2">
+<div class="card"><h4>公式提取策略</h4>
+<div class="tree">
+<span class="b">优先级 1: Display Math</span>
+  display = DISPLAY_MATH.findall(statement)
+  core = <span class="l">第一个长度 > 15 的公式</span>
+
+<span class="b">优先级 2: Inline Math (回退)</span>
+  inline = INLINE_MATH.findall(statement)
+  significant = [f for f in inline if len(f) > 10]
+  core = <span class="l">' ; '.join(significant[:3])</span>
+
+<span class="b">Tag 公式合并:</span>
+  按 position 将 \tag{...} 公式
+  合并到<span class="l">最近的前一个定理</span>
+</div></div>
+<div class="card"><h4>效果对比</h4>
+<table>
+<tr><th>指标</th><th>旧算法</th><th>新算法</th></tr>
+<tr><td>无 LaTeX 率</td><td>~25%</td><td style="color:var(--green)">3%</td></tr>
+<tr><td>内联公式项</td><td>0</td><td style="color:var(--green)">88</td></tr>
+<tr><td>假定理引用</td><td>多项</td><td style="color:var(--green)">大幅减少</td></tr>
+<tr><td>语句渗漏</td><td>偶发</td><td style="color:var(--green)">2 项</td></tr>
+</table>
+<p class="note">ID 格式: {论文年份}_{类型}_{编号} → 1964_theorem_1</p></div>
+</div>
+</div></div>
+
+<!-- ====== 11. STAGE 4 - DEDUP ====== -->
+<div class="slide" data-slide="10"><div class="slide-inner">
+<h2>阶段四 · 结构签名去重</h2>
+<div class="grid-2">
+<div class="card"><h4>LaTeX 签名算法</h4>
+<div class="code-block" style="font-size:0.8em">def latex_signature(latex):
+    norm = re.sub(r'\s+',' ',latex).strip()
+    # 单字母变量 → X
+    norm = re.sub(r'\b([a-zA-Z])\b(?=\s*[=+...])','X',norm)
+    # 带下标变量 → XS
+    norm = re.sub(r'\b([a-zA-Z])_\{[^}]+\}','XS',norm)
+    # 数字 → N
+    norm = re.sub(r'\b\d+\.?\d*\b','N',norm)
+    # 保留所有 LaTeX 命令结构
+    return re.sub(r'\s+','',norm)[:200]</div></div>
+<div class="card"><h4>合并规则</h4>
+<div class="tree">
+<span class="b">分桶:</span> 按签名前 40 字符分桶
+<span class="b">桶内比较:</span>
+  <span class="b">├─</span> 精确签名匹配 → 合并
+  <span class="b">├─</span> SequenceMatcher > 0.92 → 合并
+  <span class="b">└─</span> <span class="l">同论文 + 不同名 → 永不合并</span>
+<span class="b">合并策略:</span>
+  保留最长 statement + 最长 latex
+  合并所有 sources
+</div>
+<p style="margin-top:6px;font-size:0.85em">结果: 315 项中仅 3 组合并 (高度保守, 避免误合)</p></div>
+</div>
+</div></div>
+
+<!-- ====== 12. STAGE 5 - RELATIONS ====== -->
+<div class="slide" data-slide="11"><div class="slide-inner">
+<h2>阶段五 · 关系发现 — 四维判定</h2>
+<div class="grid-2">
+<div class="card"><h4>Derives 推导</h4>
+<div class="tree">
+<span class="b">Theorem → Corollary</span> <span class="d">(0.80)</span>
+<span class="b">Lemma → Corollary</span> <span class="d">(score≥3)</span>
+<span class="b">Proposition → Corollary</span> <span class="d">(score≥3)</span>
+</div>
+<div class="tag tag-red" style="margin-top:6px">1,529 条</div></div>
+<div class="card"><h4>Depends 依赖</h4>
+<div class="tree">
+<span class="b">Lemma → Theorem/Prop</span> <span class="d">(score≥3)</span>
+<span class="b">Definition → Any</span> <span class="d">(score≥2)</span>
+<span class="b">Proposition → Theorem</span> <span class="d">(score≥3)</span>
+<span class="b">同论文相邻引理链</span>
+<span class="b">交叉引用检测</span>
+</div>
+<div class="tag tag-orange" style="margin-top:6px">2,309 条</div></div>
+<div class="card"><h4>Equivalent 等价</h4>
+<div class="tree">
+<span class="b">同编号 + 跨论文</span> <span class="d">(score≥3)</span>
+<span class="b">LaTeX 相似 > 92%</span>
+<span class="b">同类型 + 5 词重叠</span>
+</div>
+<div class="tag tag-green" style="margin-top:6px">517 条</div></div>
+<div class="card"><h4>Generalizes 推广</h4>
+<div class="tree">
+<span class="b">同类型 + 跨论文</span>
+<span class="b">先→后年份</span> <span class="d">(score≥4)</span>
+<span class="b">回退</span><span class="d">: 强相关 5+ 词</span>
+</div>
+<div class="tag tag-blue" style="margin-top:6px">807 条</div></div>
+</div>
+</div></div>
+
+<!-- ====== 13. RELATION STATS ====== -->
+<div class="slide" data-slide="12"><div class="slide-inner">
+<h2>关系分布分析</h2>
+<div class="grid-2">
+<div class="card" style="text-align:center">
+<h4>关系比例</h4>
+<div style="display:flex;height:200px;align-items:flex-end;gap:24px;justify-content:center;padding:16px">
+<div style="text-align:center"><div style="width:60px;height:150px;background:var(--orange);border-radius:4px 4px 0 0"></div><p style="margin-top:4px;font-size:0.8em">Depends<br>44.7%</p></div>
+<div style="text-align:center"><div style="width:50px;height:100px;background:var(--red);border-radius:4px 4px 0 0"></div><p style="margin-top:4px;font-size:0.8em">Derives<br>29.6%</p></div>
+<div style="text-align:center"><div style="width:40px;height:55px;background:var(--blue);border-radius:4px 4px 0 0"></div><p style="margin-top:4px;font-size:0.8em">Generalizes<br>15.6%</p></div>
+<div style="text-align:center"><div style="width:35px;height:35px;background:var(--green);border-radius:4px 4px 0 0"></div><p style="margin-top:4px;font-size:0.8em">Equivalent<br>10.0%</p></div>
+</div>
+</div>
+<div class="card"><h4>网络拓扑指标</h4>
+<table>
+<tr><td>节点数</td><td class="highlight">315</td></tr>
+<tr><td>边数 (关系)</td><td class="highlight">5,162</td></tr>
+<tr><td>边数 (同论文)</td><td class="highlight">1,358</td></tr>
+<tr><td>总边数</td><td class="highlight">6,520</td></tr>
+<tr><td>平均度数</td><td class="highlight">41.4</td></tr>
+<tr><td>图密度</td><td class="highlight">0.13</td></tr>
+<tr><td>连通分量</td><td class="highlight">~1 (强连通)</td></tr>
+</table></div>
+</div>
+</div></div>
+
+<!-- ====== 14. STAGE 6 - LAYOUT ====== -->
+<div class="slide" data-slide="13"><div class="slide-inner">
+<h2>阶段六 · 中心辐射布局</h2>
+<div class="grid-2">
+<div class="card"><h4>布局算法</h4>
+<div class="tree">
+<span class="b">1.</span> 计算节点中心度 (degree)
+<span class="b">2.</span> 从 top-5 核心节点 BFS → 深度环
+<span class="b">3.</span> 同心环放置 (中心 = 高度数)
+<span class="b">4.</span> 加权弹簧精调 (120 轮):
+    <span class="b">├─</span> 推导/推广 <span class="d">(w=1.0)</span> → <span class="l">40px</span>
+    <span class="b">├─</span> 依赖     <span class="d">(w=0.5)</span> → <span class="l">100px</span>
+    <span class="b">└─</span> 同论文   <span class="d">(w=0.15)</span> → <span class="l">180px</span>
+<span class="b">5.</span> 网格加速防重叠 (O(n) bucket)
+<span class="b">6.</span> 硬性去重叠修正 (50 轮)
+</div></div>
+<div class="card"><h4>设计原则</h4>
+<table>
+<tr><td>中心辐射</td><td>核心节点居中, 按图距离外扩</td></tr>
+<tr><td>关系距离</td><td>紧密关联 → 距离近</td></tr>
+<tr><td>同论文聚拢</td><td>弱权重边使同论文节点轻微聚合</td></tr>
+<tr><td>无碰撞</td><td>硬性最小间距 + 网格加速</td></tr>
+<tr><td>静态渲染</td><td>预计算坐标, 浏览器零力模拟</td></tr>
+<tr><td>类型分散</td><td>5 种类型各有引力中心</td></tr>
+</table></div>
+</div>
+</div></div>
+
+<!-- ====== 15. VIS - OVERVIEW ====== -->
+<div class="slide" data-slide="14"><div class="slide-inner">
+<h2>可视化 — 交互能力总览</h2>
+<div class="grid-3">
+<div class="card"><h4>论文选择器</h4><p style="font-size:0.85em">下拉切换 26 篇论文, 单论文模式仅显示该论文节点及其内部关系</p></div>
+<div class="card"><h4>类型过滤器</h4><p style="font-size:0.85em">按 Theorem/Lemma/Corollary/Definition/Proposition 一键筛选</p></div>
+<div class="card"><h4>关键词搜索</h4><p style="font-size:0.85em">实时模糊搜索节点名称和关键词, 非匹配项自动暗化</p></div>
+<div class="card"><h4>五色关系线</h4><p style="font-size:0.85em"><span style="color:var(--red)">Derives</span> · <span style="color:var(--blue)">Generalizes</span> · <span style="color:var(--green)">Equivalent</span> · <span style="color:var(--orange)">Depends</span> · <span style="color:var(--purple)">Same Paper</span></p></div>
+<div class="card"><h4>视口裁剪</h4><p style="font-size:0.85em">仅渲染当前可视区域内的节点与连线, 减少 93% DOM 元素</p></div>
+<div class="card"><h4>LOD 缩放</h4><p style="font-size:0.85em">0.35x 仅圆点 → 0.75x 缩小 → 1.2x 标签 → 1.8x 放大</p></div>
+<div class="card"><h4>点击详情</h4><p style="font-size:0.85em">右侧面板: LaTeX 公式 · 完整陈述 · 关键词 · 关联项列表</p></div>
+<div class="card"><h4>悬停高亮</h4><p style="font-size:0.85em">悬停节点 → 高亮连通子图, 其余节点暗化至 12%</p></div>
+<div class="card"><h4>拖拽交互</h4><p style="font-size:0.85em">拖拽节点自由调整位置, 连线实时跟随, 支持缩放平移</p></div>
+</div>
+</div></div>
+
+<!-- ====== 16. VIS - PERFORMANCE ====== -->
+<div class="slide" data-slide="15"><div class="slide-inner">
+<h2>可视化 — 性能优化</h2>
+<div class="grid-2">
+<div class="card"><h4>优化项</h4>
+<table>
+<tr><td>数据外置</td><td>HTML 从 1.1MB → 885KB (compact JSON)</td></tr>
+<tr><td>视口裁剪</td><td>DOM 从 5,254 → ~300 (当前可见)</td></tr>
+<tr><td>静态布局</td><td>O(N²) 力模拟 → 预计算坐标, 零开销</td></tr>
+<tr><td>GPU 加速</td><td>will-change:transform + contain:layout</td></tr>
+<tr><td>pointer-events</td><td>连线层 pointer-events:none 减少事件</td></tr>
+<tr><td>LOD 缩放</td><td>远距跳过高开销渲染 (线 + 文字)</td></tr>
+<tr><td>防抖 40ms</td><td>zoom 回调去抖, 避免高频重绘</td></tr>
+<tr><td>标签按需</td><td>仅在 >1.2x 缩放时显示文字标签</td></tr>
+</table></div>
+<div class="card"><h4>效果对比</h4>
+<table>
+<tr><th>指标</th><th>优化前</th><th>优化后</th></tr>
+<tr><td>HTML 大小</td><td>1.1 MB</td><td style="color:var(--green)">885 KB</td></tr>
+<tr><td>首次渲染 DOM</td><td>5,254 元素</td><td style="color:var(--green)">~300 元素</td></tr>
+<tr><td>力模拟耗时</td><td>O(N²)/tick</td><td style="color:var(--green)">0 (静态)</td></tr>
+<tr><td>缩放响应</td><td>80ms</td><td style="color:var(--green)">40ms</td></tr>
+<tr><td>过渡动画</td><td>120ms</td><td style="color:var(--green)">80ms</td></tr>
+<tr><td>极远缩放</td><td>全量计算</td><td style="color:var(--green)">提前退出</td></tr>
+</table></div>
+</div>
+</div></div>
+
+<!-- ====== 17. VIS - RELATION COLORS ====== -->
+<div class="slide" data-slide="16"><div class="slide-inner">
+<h2>可视化 — 关系线颜色体系</h2>
+<div class="grid-2">
+<div class="card"><h4>节点颜色</h4>
+<table>
+<tr><td><span class="dot" style="background:var(--red)"></span> Theorem</td><td style="color:var(--red)">#ff5252</td><td>红</td></tr>
+<tr><td><span class="dot" style="background:var(--blue)"></span> Lemma</td><td style="color:var(--blue)">#448aff</td><td>蓝</td></tr>
+<tr><td><span class="dot" style="background:var(--orange)"></span> Proposition</td><td style="color:var(--orange)">#ffab40</td><td>橙</td></tr>
+<tr><td><span class="dot" style="background:var(--green)"></span> Corollary</td><td style="color:var(--green)">#69f0ae</td><td>绿</td></tr>
+<tr><td><span class="dot" style="background:var(--purple)"></span> Definition</td><td style="color:var(--purple)">#e040fb</td><td>紫</td></tr>
+</table></div>
+<div class="card"><h4>关系线颜色</h4>
+<table>
+<tr><td><span style="color:var(--red)">━━━</span> Derives</td><td>#ff5252</td><td>实线 2px</td></tr>
+<tr><td><span style="color:var(--blue)">╌╌╌</span> Generalizes</td><td>#448aff</td><td>虚线 1.5px</td></tr>
+<tr><td><span style="color:var(--green)">╌╌╌</span> Equivalent</td><td>#69f0ae</td><td>虚线 1.5px</td></tr>
+<tr><td><span style="color:var(--orange)">···</span> Depends</td><td>#ffab40</td><td>点线 1px</td></tr>
+<tr><td><span style="color:var(--purple)">···</span> Same Paper</td><td>#b388ff</td><td>点线 0.5px</td></tr>
+</table></div>
+</div>
+<div class="card" style="margin-top:8px"><h4>配色原则</h4>
+<p style="font-size:0.85em">五种关系线颜色完全不重叠 (红/蓝/绿/橙/紫), 在深色背景 (#0d1520) 上对比度均 > 4.5:1。线型差异化 (实线/虚线/点线) 进一步增强区分度, 色盲友好。</p></div>
+</div></div>
+
+<!-- ====== 18. DATA FLOW ====== -->
+<div class="slide" data-slide="17"><div class="slide-inner">
+<h2>数据流与文件结构</h2>
+<div class="grid-2">
+<div class="card"><h4>数据流</h4>
+<div class="tree">
+papers/*.md <span class="d">(26 篇)</span>
+  <span class="b">↓ parser.py</span>
+raw_items <span class="d">(~335 项/篇总计)</span>
+  <span class="b">↓ deduplication.py</span>
+merged_items <span class="d">(315 项, 3 组合并)</span>
+  <span class="b">↓ relations.py</span>
+items + relations <span class="d">(5,162 条)</span>
+  <span class="b">↓ layout.py</span>
+items + coords + relations
+  <span class="b">↓ generator.py</span>
+<span class="l">knowledge_network.json</span> (3MB)
+<span class="l">knowledge_network.html</span> (885KB)
+</div></div>
+<div class="card"><h4>JSON Schema</h4>
+<div class="code-block" style="font-size:0.75em">{
+  "network_name": "...",
+  "papers": [{id, title, year}],
+  "items": [{
+    id, type, name, latex, statement,
+    sources, keywords, relations,
+    summary, premises, conclusion,
+    domain, confidence, proof_technique,
+    formulas, x, y
+  }],
+  "relations_summary": [{source_id, target_id, type, note}],
+  "merge_records": [{kept_id, merged_ids, reason}]
+}</div></div>
+</div>
+</div></div>
+
+<!-- ====== 19. CLAUDE CODE INTEGRATION ====== -->
+<div class="slide" data-slide="18"><div class="slide-inner">
+<h2>Claude Code 集成</h2>
+<div class="grid-2">
+<div class="card"><h4>提示词模块</h4>
+<div class="code-block">prompts/
+├── extract.txt      # 定理提取提示词
+├── classify.txt     # 关键词/领域分类
+├── summarize.txt    # 中文摘要生成
+└── relations.txt    # 关系发现提示词</div>
+<p style="font-size:0.85em;margin-top:6px">每个提示词定义输出 JSON Schema，Claude 严格按格式返回结构化数据</p></div>
+<div class="card"><h4>自动富化管道</h4>
+<div class="tree">
+<span class="b">pipeline/enricher.py</span>
+  <span class="b">├─</span> _get_client() → Anthropic SDK
+  <span class="b">├─</span> _load_prompt(name) → prompts/*.txt
+  <span class="b">├─</span> _call_claude() → API 调用
+  <span class="b">├─</span> _cache_get/set → 磁盘缓存 30 天
+  <span class="b">└─</span> enrich_items() → 逐项富化:
+       <span class="b">├─</span> classify → 关键词 + 领域
+       <span class="b">└─</span> summarize → 中文 1-3 句摘要
+</div></div>
+</div>
+<div class="card" style="margin-top:8px"><h4>使用流程</h4>
+<div class="code-block"># 自动模式 (有 API Key 时自动运行)
+python build_graph.py
+
+# 手动模式
+python build_graph.py --export output/raw_items.json
+# → Claude Code 处理 raw_items.json → enriched.json
+python build_graph.py --enrich output/enriched.json</div></div>
+</div></div>
+
+<!-- ====== 20. PROJECT STRUCTURE ====== -->
+<div class="slide" data-slide="19"><div class="slide-inner">
+<h2>项目文件结构</h2>
+<div class="code-block">论文知识图谱/
+├── build_graph.py              # 主入口 (6 阶段, ~230 行)
+├── config.py                   # 路径与布局配置
+├── pipeline/
+│   ├── parser.py               # 三阶段定理提取 (~150 行)
+│   ├── deduplication.py        # 结构签名去重 (~90 行)
+│   ├── relations.py            # 多策略关系发现 (~120 行)
+│   ├── layout.py               # 中心辐射加权布局 (~170 行)
+│   └── enricher.py             # Claude API 自动富化 (~130 行)
+├── visualize/
+│   ├── generator.py            # HTML 生成器 (~340 行)
+│   └── static/
+│       ├── graph.js            # D3.js 引擎
+│       └── styles.css          # 样式表
+├── prompts/                    # Claude Code 提示词 (4 个)
+├── papers/                     # 26 篇源论文
+├── output/                     # 生成输出 (gitignored)
+├── run.bat / run.sh            # 一键启动脚本
+├── README.md                   # 项目文档
+└── .env                        # ANTHROPIC_API_KEY (gitignored)</div>
+<div class="metrics">
+<div class="metric small"><div class="num">10</div><div class="label">源文件</div></div>
+<div class="metric small"><div class="num">~1,200</div><div class="label">总代码行数</div></div>
+<div class="metric small"><div class="num">0</div><div class="label">核心依赖</div></div>
+<div class="metric small"><div class="num">1</div><div class="label">可选依赖</div></div>
+</div>
+</div></div>
+
+<!-- ====== 21. USAGE ====== -->
+<div class="slide" data-slide="20"><div class="slide-inner">
+<h2>使用方式</h2>
+<div class="card" style="margin-bottom:8px"><h4>一键启动</h4>
+<div class="code-block"># Windows: 双击 run.bat
+# Linux/Mac: ./run.sh</div></div>
+<div class="card" style="margin-bottom:8px"><h4>命令行</h4>
+<div class="code-block"># 完整管道 (正则模式)
+python build_graph.py
+
+# 导出原始条目供 Claude Code 分析
+python build_graph.py --export output/raw_items.json
+
+# 加载 Claude Code 增强数据
+python build_graph.py --enrich output/enriched.json
+
+# 单篇论文提取
+python build_graph.py --paper papers/1964-.../paper.correction.md</div></div>
+<div class="card"><h4>可视化</h4>
+<p>双击 <code style="color:var(--gold);background:#0a121c;padding:2px 6px;border-radius:3px">output/knowledge_network.html</code> 即可在浏览器中打开, 无需 HTTP 服务器。支持键盘导航: <kbd>←</kbd><kbd>→</kbd> 翻页, <kbd>Space</kbd> 下一页。</p></div>
+</div></div>
+
+<!-- ====== 22. KEYWORD ONTOLOGY ====== -->
+<div class="slide" data-slide="21"><div class="slide-inner">
+<h2>关键词本体</h2>
+<div class="grid-3">
+<div class="card"><h4>方法论</h4>
+<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">
+<span class="tag tag-blue">proximal_point</span><span class="tag tag-blue">gradient_method</span><span class="tag tag-blue">accelerated</span><span class="tag tag-blue">heavy_ball</span><span class="tag tag-blue">inertial</span><span class="tag tag-blue">splitting</span><span class="tag tag-blue">newton</span><span class="tag tag-blue">quasi_newton</span><span class="tag tag-blue">variable_metric</span><span class="tag tag-blue">projection</span><span class="tag tag-blue">extragradient</span><span class="tag tag-blue">forward_backward</span><span class="tag tag-blue">douglas_rachford</span><span class="tag tag-blue">interior_point</span><span class="tag tag-blue">barrier</span><span class="tag tag-blue">penalty</span><span class="tag tag-blue">augmented_lagrangian</span><span class="tag tag-blue">bregman</span><span class="tag tag-blue">regularization</span>
+</div></div>
+<div class="card"><h4>理论基础</h4>
+<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">
+<span class="tag tag-purple">convex</span><span class="tag tag-purple">monotone</span><span class="tag tag-purple">operator_theory</span><span class="tag tag-purple">subdifferential</span><span class="tag tag-purple">nonexpansive</span><span class="tag tag-purple">resolvent</span><span class="tag tag-purple">fixed_point</span><span class="tag tag-purple">spectral</span><span class="tag tag-purple">hilbert_space</span><span class="tag tag-purple">banach_space</span><span class="tag tag-purple">lipschitz</span><span class="tag tag-purple">coercive</span><span class="tag tag-purple">strong_convexity</span><span class="tag tag-purple">duality</span><span class="tag tag-purple">fenchel</span><span class="tag tag-purple">saddle_point</span><span class="tag tag-purple">lyapunov</span><span class="tag tag-purple">opial</span>
+</div></div>
+<div class="card"><h4>收敛性</h4>
+<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">
+<span class="tag tag-green">convergence</span><span class="tag tag-green">convergence_rate</span><span class="tag tag-green">weak_convergence</span><span class="tag tag-green">strong_convergence</span><span class="tag tag-green">linear_convergence</span>
+</div></div>
+<div class="card"><h4>系统类型</h4>
+<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">
+<span class="tag tag-orange">dissipative</span><span class="tag tag-orange">damping</span><span class="tag tag-orange">second_order</span><span class="tag tag-orange">differential_eq</span><span class="tag tag-orange">discretization</span><span class="tag tag-orange">energy</span><span class="tag tag-orange">oscillator</span>
+</div></div>
+</div>
+<p class="note">共 57 个正则关键词模式 + Claude Code 自由扩展领域标签。正则模式覆盖基础分类，Claude Code 提供语义级精准标注。</p>
+</div></div>
+
+<!-- ====== 23. QUALITY METRICS ====== -->
+<div class="slide" data-slide="22"><div class="slide-inner">
+<h2>质量指标</h2>
+<div class="grid-2">
+<div class="card"><h4>提取质量</h4>
+<table>
+<tr><th>指标</th><th>值</th></tr>
+<tr><td>总提取项</td><td class="highlight">318 raw → 315 merged</td></tr>
+<tr><td>去重合并</td><td class="highlight">3 组 (0.9%)</td></tr>
+<tr><td>无 LaTeX 项</td><td style="color:var(--green)">8 项 (2.5%)</td></tr>
+<tr><td>内联公式回退</td><td style="color:var(--green)">88 项 (28%)</td></tr>
+<tr><td>语句渗漏</td><td>2 项 (0.6%)</td></tr>
+<tr><td>假定理 (引用误判)</td><td style="color:var(--green)">大幅减少</td></tr>
+</table></div>
+<div class="card"><h4>关系质量</h4>
+<table>
+<tr><th>指标</th><th>值</th></tr>
+<tr><td>关系总数</td><td class="highlight">5,162</td></tr>
+<tr><td>Derives 占比</td><td>29.6% (合理)</td></tr>
+<tr><td>Depends 占比</td><td>44.7% (合理)</td></tr>
+<tr><td>Equivalent 占比</td><td style="color:var(--green)">10.0% (从 1.6% 提升)</td></tr>
+<tr><td>Generalizes 占比</td><td>15.6% (合理)</td></tr>
+<tr><td>平均度数</td><td>41.4 (适度连通)</td></tr>
+</table></div>
+</div>
+</div></div>
+
+<!-- ====== 24. TECH STACK ====== -->
+<div class="slide" data-slide="23"><div class="slide-inner">
+<h2>技术栈总览</h2>
+<div class="grid-3">
+<div class="card" style="text-align:center"><div style="font-size:2em;color:var(--blue)">Claude Code</div><p style="font-size:0.85em;margin-top:4px">智能分析引擎<br>提示词模板驱动<br>结构化 JSON 输出<br>论文理解 · 分类 · 摘要</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2em;color:var(--orange)">Python</div><p style="font-size:0.85em;margin-top:4px">核心管道<br>正则解析 · 去重<br>关系发现 · 布局计算<br>零外部依赖 (标准库)</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2em;color:var(--green)">D3.js v7</div><p style="font-size:0.85em;margin-top:4px">交互可视化<br>力导向图 · 视口裁剪<br>LOD 缩放 · GPU 加速<br>自包含单文件 HTML</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2em;color:var(--purple)">Anthropic API</div><p style="font-size:0.85em;margin-top:4px">可选增强<br>关键词语义标注<br>中文摘要生成<br>磁盘缓存 30 天</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2em;color:var(--red)">Regex</div><p style="font-size:0.85em;margin-top:4px">高性能回退<br>引用感知匹配<br>LaTeX 公式提取<br>57 关键词模式</p></div>
+<div class="card" style="text-align:center"><div style="font-size:2em;color:var(--pink)">TeX Live</div><p style="font-size:0.85em;margin-top:4px">可选渲染<br>LaTeX → SVG<br>latex + dvisvgm<br>本地离线编译</p></div>
+</div>
+</div></div>
+
+<!-- ====== 25. FUTURE ====== -->
+<div class="slide" data-slide="24"><div class="slide-inner">
+<h2>未来方向</h2>
+<div class="grid-2">
+<div class="card"><h4>近期计划</h4>
+<div class="tree">
+<span class="b">□</span> Claude Code 全量富化运行 (需有效 API Key)
+<span class="b">□</span> LaTeX → SVG 渲染集成 (已有 TeX Live)
+<span class="b">□</span> 同论文节点合并到定理项 (已完成解析端)
+<span class="b">□</span> 关系置信度可视化 (线宽/透明度按置信度)
+<span class="b">□</span> 导出为 GraphML / GEXF 格式
+</div></div>
+<div class="card"><h4>远期规划</h4>
+<div class="tree">
+<span class="b">□</span> 支持更多论文格式 (PDF 解析, LaTeX 源码)
+<span class="b">□</span> 定理证明链自动推导
+<span class="b">□</span> 跨语言论文支持 (中文/法文/俄文)
+<span class="b">□</span> WebGL 渲染 (支持 10,000+ 节点)
+<span class="b">□</span> 在线协作知识图谱编辑
+<span class="b">□</span> 向量嵌入相似度替代关键词重叠
+</div></div>
+</div>
+</div></div>
+
+<!-- ====== 26. END ====== -->
+<div class="slide" data-slide="25"><div class="slide-inner" style="text-align:center">
+<h1 style="font-size:3.5em"><span class="accent">感谢观看</span></h1>
+<div style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+<div class="metric"><div class="num">26</div><div class="label">Papers</div></div>
+<div class="metric"><div class="num">315</div><div class="label">Items</div></div>
+<div class="metric"><div class="num">5,162</div><div class="label">Relations</div></div>
+<div class="metric"><div class="num">10</div><div class="label">Source Files</div></div>
+<div class="metric"><div class="num">~8s</div><div class="label">Build Time</div></div>
+</div>
+<p style="margin-top:24px;color:var(--dim)">Built with Claude Code · Python Pipeline · D3.js</p>
+<p style="margin-top:6px"><a href="https://github.com/dawersiy/-" style="color:var(--acc);text-decoration:none;font-size:1.1em">github.com/dawersiy/-</a></p>
+<p style="margin-top:20px;color:var(--dim);font-size:0.85em">Press ← → or Space to navigate · Home/End to jump</p>
+</div></div>
+
+</div>
+
+<div id="nav">
+<button id="prev" onclick="go(-1)">◀</button>
+<span id="page-num">1 / 26</span>
+<button id="next" onclick="go(1)">▶</button>
+</div>
+
+<script>
+let current = 0;
+const total = document.querySelectorAll('.slide').length;
+
+function go(dir) {
+  const slides = document.querySelectorAll('.slide');
+  slides[current].classList.remove('active');
+  slides[current].classList.add(dir > 0 ? 'prev' : '');
+  current = Math.max(0, Math.min(total - 1, current + dir));
+  slides.forEach((s, i) => {
+    if (i === current) { s.classList.add('active'); s.classList.remove('prev'); }
+    else if (i < current) s.classList.add('prev');
+    else { s.classList.remove('active','prev'); }
+  });
+  document.getElementById('page-num').textContent = `${current + 1} / ${total}`;
+  document.getElementById('progress').style.width = `${((current + 1) / total) * 100}%`;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(-1); }
+  if (e.key === 'Home') { e.preventDefault(); current = total; go(-total); }
+  if (e.key === 'End') { e.preventDefault(); current = -1; go(total); }
+});
+
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) go(diff > 0 ? 1 : -1);
+});
+
+document.getElementById('progress').style.width = `${(1/total)*100}%`;
+</script>
+</body>
+</html>
