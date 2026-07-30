@@ -118,7 +118,7 @@ function r1(){
   });
 
   // Bottom note
-  svg.append('text').attr('x',cx).attr('y',H-18).attr('text-anchor','middle').attr('fill','#8893a0').attr('font-size','10px')
+  svg.append('text').attr('x',cx).attr('y',H-18).attr('text-anchor','middle').attr('fill','#374151').attr('font-size','10px')
     .text('构建一次知识图谱 → 持续对话问答 → 适用于任何结构化知识');
 }
 
@@ -145,7 +145,7 @@ function r2(){
     g.append('text').attr('x',p.x+p.w/2).attr('y',70).attr('text-anchor','middle')
       .attr('fill',p.color).attr('font-size','18px').attr('font-weight','700').text(p.title);
     g.append('text').attr('x',p.x+p.w/2).attr('y',95).attr('text-anchor','middle')
-      .attr('fill','#8893a0').attr('font-size','12px').text(p.sub);
+      .attr('fill','#374151').attr('font-size','12px').text(p.sub);
     // Separator
     g.append('line').attr('x1',p.x+30).attr('y1',110).attr('x2',p.x+p.w-30).attr('y2',110)
       .attr('stroke','#dde1e6').attr('stroke-width',1);
@@ -162,10 +162,10 @@ function r2(){
   // Arrow between
   const arrow=svg.append('g');
   arrow.append('line').attr('x1',W/2-20).attr('y1',H/2).attr('x2',W/2+20).attr('y2',H/2)
-    .attr('stroke','#8893a0').attr('stroke-width',2).attr('marker-end','url(#arr2)');
+    .attr('stroke','#374151').attr('stroke-width',2).attr('marker-end','url(#arr2)');
   svg.append('defs').append('marker').attr('id','arr2').attr('viewBox','0 0 10 10').attr('refX',8).attr('refY',5)
     .attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto')
-    .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#8893a0');
+    .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#374151');
 }
 
 // ════════════════ Slide 3: AI Workflow ════════════════
@@ -199,7 +199,7 @@ function r3(){
     svg.append('line').attr('x1',a.x1).attr('y1',a.y1).attr('x2',a.x2).attr('y2',a.y2).attr('stroke','#dde1e6').attr('stroke-width',1.5).attr('stroke-dasharray','5,3');
   });
 
-  svg.append('text').attr('x',W/2).attr('y',H-15).attr('text-anchor','middle').attr('fill','#8893a0').attr('font-size','10px').text('人负责决策和架构 · AI 负责执行和生成 · 双方互相迭代');
+  svg.append('text').attr('x',W/2).attr('y',H-15).attr('text-anchor','middle').attr('fill','#374151').attr('font-size','10px').text('人负责决策和架构 · AI 负责执行和生成 · 双方互相迭代');
 }
 
 // ════════════════ Slide 4: Prompt Engineering ════════════════
@@ -222,18 +222,18 @@ function r4(){
     {t:'你是一位数学分类专家。',c:'#333840'},
     {t:'为给定的数学定理分配',c:'#333840'},
     {t:'关键词和领域标签。',c:'#333840'},
-    {t:'',c:'#8893a0'},
+    {t:'',c:'#374151'},
     {t:'输出JSON格式:',c:'#b45309'},
     {t:'{',c:'#667080'},
     {t:'  "keywords": [...],',c:'#667080'},
     {t:'  "domain": [...],',c:'#667080'},
     {t:'  "confidence": 0.9',c:'#667080'},
     {t:'}',c:'#667080'},
-    {t:'',c:'#8893a0'},
+    {t:'',c:'#374151'},
     {t:'领域标签(30+个可选):',c:'#333840'},
     {t:'proximal_point, gradient_',c:'#5a6070'},
     {t:'method, accelerated_method...',c:'#5a6070'},
-    {t:'',c:'#8893a0'},
+    {t:'',c:'#374151'},
     {t:'→ AI 返回结构化结果 ✅',c:'#059669'},
   ];
   lines.forEach((l,i)=>{
@@ -272,10 +272,10 @@ function r5(){
     if(i<stages.length-1){
       pSvg.append('line').attr('x1',x+110).attr('y1',55).attr('x2',x+150).attr('y2',55)
         .attr('stroke','#dde1e6').attr('stroke-width',2);
-      pSvg.append('polygon').attr('points',`${x+147},51 ${x+155},55 ${x+147},59`).attr('fill','#8893a0');
+      pSvg.append('polygon').attr('points',`${x+147},51 ${x+155},55 ${x+147},59`).attr('fill','#374151');
     }
   });
-  pSvg.append('text').attr('x',pW/2).attr('y',pH-8).attr('text-anchor','middle').attr('fill','#8893a0').attr('font-size','9px').text('~3 分钟 (含 LLM) · Python 标准库 + Claude API · 零外部依赖');
+  pSvg.append('text').attr('x',pW/2).attr('y',pH-8).attr('text-anchor','middle').attr('fill','#374151').attr('font-size','9px').text('~3 分钟 (含 LLM) · Python 标准库 + Claude API · 零外部依赖');
 
   // Stats
   const items=I(),rels=Rels(),papers=P();
@@ -297,7 +297,7 @@ function r5(){
   g1.append('text').attr('class','chart-title-text').attr('x',iw1/2).attr('y',-10).attr('text-anchor','middle').text('知识条目类型分布');
   g1.append('g').call(d3.axisLeft(y1).tickFormat(t=>TCN[t]||t)).selectAll('text').attr('fill','#5a6070').attr('font-size','11px');
   g1.selectAll('.domain,.tick line').attr('stroke','#dde1e6');
-  g1.append('g').attr('transform',`translate(0,${ih1})`).call(d3.axisBottom(x1).ticks(5).tickFormat(d3.format('d'))).selectAll('text').attr('fill','#8893a0').attr('font-size','9px');
+  g1.append('g').attr('transform',`translate(0,${ih1})`).call(d3.axisBottom(x1).ticks(5).tickFormat(d3.format('d'))).selectAll('text').attr('fill','#374151').attr('font-size','9px');
   g1.selectAll('.domain,.tick line').attr('stroke','#dde1e6');
   g1.selectAll('rect').data(types).join('rect').attr('y',d=>y1(d)).attr('height',y1.bandwidth()).attr('x',0).attr('width',0)
     .attr('fill',d=>CM[d]).attr('rx',3).transition().duration(600).delay((d,i)=>i*80).attr('width',d=>x1(tc[d]));
@@ -320,7 +320,7 @@ function r5(){
     g2.append('text').attr('x',-6).attr('y',y+bh/2).attr('dy','0.35em').attr('text-anchor','end').attr('fill','#5a6070').attr('font-size','9px').text(k.replace(/_/g,' '));
     g2.append('rect').attr('x',0).attr('y',y+1).attr('height',bh-2).attr('rx',2).attr('fill',d3.interpolateBlues(v/maxK*0.7+0.3)).attr('width',0)
       .transition().duration(500).delay(i*35).attr('width',(v/maxK)*iw2*0.9);
-    g2.append('text').attr('x',(v/maxK)*iw2*0.9+5).attr('y',y+bh/2).attr('dy','0.35em').attr('fill','#8893a0').attr('font-size','8px').text(v);
+    g2.append('text').attr('x',(v/maxK)*iw2*0.9+5).attr('y',y+bh/2).attr('dy','0.35em').attr('fill','#374151').attr('font-size','8px').text(v);
   });
 }
 
@@ -375,13 +375,13 @@ function renderGraph(){
     const conn=new Set();linkData.forEach(l=>{if(l.source===d._i)conn.add(l.target);if(l.target===d._i)conn.add(l.source);});
     nodeSel.selectAll('circle').attr('opacity',n=>n._i===d._i||conn.has(n._i)?1:0.15);
     linkSel.attr('opacity',l=>l.source===d._i||l.target===d._i?0.9:0.04);
-    d3.select('#tooltip').html(`<div style="color:#1a1e26;font-weight:600">${d.name}</div><div style="font-size:9px;color:#8893a0">${TCN[d.type]} · ${d.sources.length} 来源</div>`).style('left',(e.pageX+12)+'px').style('top',(e.pageY-12)+'px').style('opacity',1);
+    d3.select('#tooltip').html(`<div style="color:#1a1e26;font-weight:600">${d.name}</div><div style="font-size:9px;color:#374151">${TCN[d.type]} · ${d.sources.length} 来源</div>`).style('left',(e.pageX+12)+'px').style('top',(e.pageY-12)+'px').style('opacity',1);
   }).on('mouseout',function(e,d){
     d3.select(this).select('circle').transition().duration(120).attr('r',(SZ[d.type]||10)+Math.min((d.sources||[]).length*2,6));
     nodeSel.selectAll('circle').attr('opacity',1);linkSel.attr('opacity',0.25);d3.select('#tooltip').style('opacity',0);
   }).on('click',(e,d)=>{
     const dt=detailMap[String(d._i)]||{};
-    let h=`<div style="color:#1a1e26;font-weight:600;font-size:11px">${d.name}</div><div style="font-size:9px;color:#8893a0;margin-top:2px">${TCN[d.type]} · ${d.sources.length} 来源</div>`;
+    let h=`<div style="color:#1a1e26;font-weight:600;font-size:11px">${d.name}</div><div style="font-size:9px;color:#374151;margin-top:2px">${TCN[d.type]} · ${d.sources.length} 来源</div>`;
     if(dt.sm)h+=`<div style="font-size:9px;color:#1e40af;margin-top:3px;max-width:240px;line-height:1.4">${dt.sm}</div>`;
     if(dt.fm)h+=`<div style="font-size:10px;color:#b45309;margin-top:3px;font-family:monospace;max-width:240px;overflow:hidden">${dt.fm[0].slice(0,200)}</div>`;
     d3.select('#tooltip').html(h).style('left',(e.pageX+12)+'px').style('top',(e.pageY-12)+'px').style('opacity',1);
@@ -403,7 +403,7 @@ function renderGraph(){
   graphState={svg,zoom,updVis};
 
   document.getElementById('graph-legend').innerHTML=Object.entries(CM).map(([t,c])=>`<div class="gl-item"><span class="gl-dot" style="background:${c}"></span>${TCN[t]}</div>`).join('')
-    +'<span style="margin:0 4px;color:#8893a0">|</span>'+Object.entries(RCN).slice(0,4).map(([t,l])=>`<div class="gl-item"><span class="gl-line solid" style="border-color:${RCM[t]}"></span>${l}</div>`).join('');
+    +'<span style="margin:0 4px;color:#374151">|</span>'+Object.entries(RCN).slice(0,4).map(([t,l])=>`<div class="gl-item"><span class="gl-line solid" style="border-color:${RCM[t]}"></span>${l}</div>`).join('');
 
   document.getElementById('graph-search-input').addEventListener('input',function(){
     const q=this.value.toLowerCase();if(!graphState)return;
@@ -452,17 +452,17 @@ function r8(){
     g.append('text').attr('x',60).attr('y',s.y+16).attr('text-anchor','middle').attr('fill','#fff').attr('font-size','14px').attr('font-weight','700').text(i+1);
     // Label
     g.append('text').attr('x',95).attr('y',s.y+6).attr('fill','#1a1e26').attr('font-size','13px').attr('font-weight','600').text(s.t);
-    g.append('text').attr('x',95).attr('y',s.y+24).attr('fill','#8893a0').attr('font-size','10px').text(s.s);
+    g.append('text').attr('x',95).attr('y',s.y+24).attr('fill','#374151').attr('font-size','10px').text(s.s);
     // Arrow
     if(i<steps.length-1){
       svg.append('line').attr('x1',60).attr('y1',s.y+30).attr('x2',60).attr('y2',steps[i+1].y-6)
         .attr('stroke','#dde1e6').attr('stroke-width',2);
-      svg.append('polygon').attr('points',`56,${steps[i+1].y-12} 60,${steps[i+1].y-6} 64,${steps[i+1].y-12}`).attr('fill','#8893a0');
+      svg.append('polygon').attr('points',`56,${steps[i+1].y-12} 60,${steps[i+1].y-6} 64,${steps[i+1].y-12}`).attr('fill','#374151');
     }
   });
 
   // Right side: RAG comparison
-  svg.append('text').attr('x',W-30).attr('y',H-40).attr('text-anchor','end').attr('fill','#8893a0').attr('font-size','10px')
+  svg.append('text').attr('x',W-30).attr('y',H-40).attr('text-anchor','end').attr('fill','#374151').attr('font-size','10px')
     .text('图谱检索 > 向量搜索：结构化的层级关系更精准');
 }
 
@@ -492,7 +492,7 @@ function r9(){
   });
 
   // Bottom note
-  svg.append('text').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle').attr('fill','#8893a0').attr('font-size','10px')
+  svg.append('text').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle').attr('fill','#374151').attr('font-size','10px')
     .text('核心不变：知识提取 → 图谱构建 → 自然语言问答。换数据 = 换领域');
 }
 
