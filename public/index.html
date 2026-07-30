@@ -3,67 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Optimization Theory Knowledge Graph — Group Presentation</title>
-<link rel="stylesheet" href="/css/styles.css">
+<title>AI 驱动的知识图谱 — AI 暑期学校汇报</title>
+<link rel="stylesheet" href="/css/styles.css?v=2">
 </head>
 <body>
 
-<!-- Loading Overlay -->
+<!-- Loading -->
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <div class="msg">Loading knowledge graph…</div>
+  <div class="msg">正在加载知识图谱数据…</div>
   <div class="error-msg"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════
-     Slide Container
+     Slides
      ═══════════════════════════════════════════ -->
 <div id="slideshow">
 
-  <!-- Slide 0: Title / Overview ──────────────────── -->
+  <!-- Slide 0: 标题页 -->
   <section class="slide" id="slide-0">
     <div class="slide-content title-slide">
       <div class="title-block">
-        <h1 class="main-title">Optimization Theory<br>Knowledge Graph</h1>
-        <p class="subtitle">From 26 Classic Papers · 1964–2006</p>
+        <p class="title-conference">AI 暑期学校 · 项目展示</p>
+        <h1 class="main-title">AI 驱动的数学知识图谱</h1>
+        <p class="subtitle">用大语言模型 + 传统代码，自动从论文中构建知识网络</p>
         <div class="title-stats" id="title-stats"></div>
       </div>
-      <div class="title-meta">
-        <p>Mathematical Knowledge Network Visualization</p>
-        <p class="title-dim">Proximal Point · Inertial Methods · Splitting Algorithms · Convergence Theory</p>
-      </div>
     </div>
   </section>
 
-  <!-- Slide 1: Paper Overview ────────────────────── -->
+  <!-- Slide 1: 我们做了什么 -->
   <section class="slide" id="slide-1">
     <div class="slide-content">
-      <h2 class="slide-title">Papers Overview</h2>
-      <div id="papers-grid" class="papers-grid"></div>
-    </div>
-  </section>
-
-  <!-- Slide 2: Knowledge Type Breakdown ──────────── -->
-  <section class="slide" id="slide-2">
-    <div class="slide-content">
-      <h2 class="slide-title">Knowledge Type Distribution</h2>
+      <h2 class="slide-title">我们做了什么？</h2>
       <div class="split-layout">
-        <div id="type-chart" class="chart-area"></div>
-        <div id="type-examples" class="examples-area"></div>
+        <div class="text-panel">
+          <div class="bullet-list">
+            <div class="bullet-item">
+              <span class="bullet-icon">📚</span>
+              <div><strong>喂给 AI 26 篇数学论文</strong><br>从 1964 到 2006 年的优化理论经典文献，让 AI 帮忙读懂、分析、整理</div>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">🤖</span>
+              <div><strong>AI 帮我们写代码 + 分析内容</strong><br>Claude 负责生成 Python 处理管道，同时用 Prompt 让它自动提取定理、分类关键词、写中文摘要</div>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">🔗</span>
+              <div><strong>自动发现了 5000+ 条知识关联</strong><br>哪条定理推导了哪条？哪些是等价的？AI 帮我们把这些隐藏关系挖了出来</div>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">🎯</span>
+              <div><strong>变成了一个能交互的知识图谱</strong><br>不用读 26 篇论文，打开网页就能看到整个领域的知识结构</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-area" id="overview-chart"></div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 3: Interactive Graph ─────────────────── -->
+  <!-- Slide 2: AI 辅助开发流程 -->
+  <section class="slide" id="slide-2">
+    <div class="slide-content">
+      <h2 class="slide-title">AI 是怎么帮我们的？<span class="sub">人机协作开发模式</span></h2>
+      <div id="ai-workflow" class="pipeline-area"></div>
+    </div>
+  </section>
+
+  <!-- Slide 3: Prompt 工程 -->
   <section class="slide" id="slide-3">
+    <div class="slide-content">
+      <h2 class="slide-title">教会 AI 读懂数学论文<span class="sub">Prompt 工程设计</span></h2>
+      <div class="split-layout">
+        <div class="text-panel">
+          <div class="algo-block">
+            <div class="algo-title">我们设计了 4 种 Prompt，各司其职</div>
+            <div class="algo-step"><span class="step-num" style="background:#e05560">1</span> <strong>提取 Prompt：</strong>教 AI 从论文 Markdown 中找出所有定理、引理、推论，区分「作者提出的」和「引用别人的」</div>
+            <div class="algo-step"><span class="step-num" style="background:#e8963e">2</span> <strong>分类 Prompt：</strong>让 AI 给每个定理打上关键词标签，比如 "convergence"、"proximal"、"gradient"，再分配领域分类</div>
+            <div class="algo-step"><span class="step-num" style="background:#4da6d9">3</span> <strong>摘要 Prompt：</strong>用通俗中文解释定理的核心意思，控制在 3 句话以内——让非数学背景的人也能看懂</div>
+            <div class="algo-step"><span class="step-num" style="background:#43b884">4</span> <strong>关系 Prompt：</strong>判断两个定理之间是什么关系——A 推导了 B？A 推广了 B？还是等价？</div>
+          </div>
+          <div class="key-insight">
+            <strong>💡 关键经验：</strong>Prompt 写得越具体，AI 输出越靠谱。比如明确说「只提取数学断言，不要算法步骤」「confidence 表示你对边界的信心」，能大幅减少幻觉。
+          </div>
+        </div>
+        <div id="prompt-demo" class="chart-area"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 4: 混合策略 -->
+  <section class="slide" id="slide-4">
+    <div class="slide-content">
+      <h2 class="slide-title">AI + 传统代码：取长补短</h2>
+      <div class="split-layout">
+        <div class="text-panel">
+          <div class="algo-block">
+            <div class="algo-title">为什么不全用 AI？</div>
+            <div class="algo-step">🐌 <strong>速度：</strong>AI 处理一篇论文要几秒，26 篇下来太慢了</div>
+            <div class="algo-step">💰 <strong>成本：</strong>每次都调 API 很贵，而且结果不稳定</div>
+            <div class="algo-step">🔄 <strong>可复现：</strong>同样的输入，AI 可能给出不同的输出</div>
+          </div>
+          <div class="algo-block" style="margin-top:12px">
+            <div class="algo-title">我们的做法：各取所长</div>
+            <div class="algo-step"><span style="color:#43b884">✔ 正则表达式</span> — 负责 80% 的结构化提取（快、稳、免费）</div>
+            <div class="algo-step"><span style="color:#4da6d9">✔ AI 模型</span> — 负责 20% 的智能判断（关键词分类、中文摘要、关系判定）</div>
+            <div class="algo-step"><span style="color:#e8963e">✔ 缓存机制</span> — AI 的结果存下来，下次直接用，不重复花钱</div>
+          </div>
+        </div>
+        <div class="chart-area" id="hybrid-chart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 5: 处理管道 -->
+  <section class="slide" id="slide-5">
+    <div class="slide-content">
+      <h2 class="slide-title">数据是怎么被处理的？<span class="sub">6 步管道，8 秒跑完</span></h2>
+      <div id="pipeline-diagram" class="pipeline-area"></div>
+    </div>
+  </section>
+
+  <!-- Slide 6: 数据成果 -->
+  <section class="slide" id="slide-6">
+    <div class="slide-content">
+      <h2 class="slide-title">我们得到了什么？</h2>
+      <div class="results-grid" id="results-stats"></div>
+      <div class="split-layout" style="margin-top:8px">
+        <div id="type-bar-chart" class="chart-area"></div>
+        <div id="kw-top-chart" class="chart-area"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 7: 交互式知识图谱 DEMO -->
+  <section class="slide" id="slide-7">
     <div class="slide-content full-graph">
-      <h2 class="slide-title overlay-title">Interactive Knowledge Graph</h2>
+      <h2 class="slide-title overlay-title">🎮 亲手试试！交互式知识图谱</h2>
       <div id="graph-canvas">
         <svg></svg>
         <div class="tooltip" id="tooltip"></div>
         <div class="graph-legend" id="graph-legend"></div>
         <div class="graph-search">
-          <input type="text" id="graph-search-input" placeholder="Search node…">
+          <input type="text" id="graph-search-input" placeholder="搜索定理名称或关键词…">
         </div>
         <div class="zoom-ctl">
           <button class="zbtn" id="zin">+</button>
@@ -74,51 +156,54 @@
     </div>
   </section>
 
-  <!-- Slide 4: Keyword Network ───────────────────── -->
-  <section class="slide" id="slide-4">
+  <!-- Slide 8: 关键发现 + AI 协助总结 -->
+  <section class="slide" id="slide-8">
     <div class="slide-content">
-      <h2 class="slide-title">Keyword Analysis</h2>
-      <div class="split-layout">
-        <div id="keyword-bars" class="chart-area"></div>
-        <div id="keyword-cloud" class="chart-area"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 5: Relation Types ────────────────────── -->
-  <section class="slide" id="slide-5">
-    <div class="slide-content">
-      <h2 class="slide-title">Mathematical Relations</h2>
-      <div class="split-layout">
-        <div id="relation-stats" class="chart-area"></div>
-        <div id="relation-examples" class="examples-area"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 6: Key Theorems ──────────────────────── -->
-  <section class="slide" id="slide-6">
-    <div class="slide-content">
-      <h2 class="slide-title">Key Theorems &amp; Results</h2>
+      <h2 class="slide-title">AI 帮我们发现了什么？</h2>
       <div id="key-theorems" class="key-list"></div>
     </div>
   </section>
 
-  <!-- Slide 7: Timeline ──────────────────────────── -->
-  <section class="slide" id="slide-7">
+  <!-- Slide 9: 心得体会 -->
+  <section class="slide" id="slide-9">
     <div class="slide-content">
-      <h2 class="slide-title">Research Timeline</h2>
-      <div id="timeline" class="timeline-area"></div>
+      <h2 class="slide-title">我们学到了什么？<span class="sub">AI 辅助开发的心得</span></h2>
+      <div class="split-layout">
+        <div class="text-panel">
+          <div class="bullet-list">
+            <div class="bullet-item">
+              <span class="bullet-icon">💬</span>
+              <div><strong>Prompt 就是新的编程语言</strong><br>写 Prompt 和写代码一样需要迭代调试——第一版通常不够好，要反复优化用词、加约束、给示例</div>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">🔧</span>
+              <div><strong>AI 写代码 ≠ 不用懂代码</strong><br>AI 生成的代码需要人来审查、调试、拼接。我们负责架构设计，AI 负责填充细节——人机分工才是正解</div>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">⚡</span>
+              <div><strong>传统方法 + AI = 最佳组合</strong><br>正则负责快和准，AI 负责理解和判断。纯 AI 慢且贵，纯规则傻且脆——结合使用效果最好</div>
+            </div>
+            <div class="bullet-item">
+              <span class="bullet-icon">🎓</span>
+              <div><strong>10 分钟就能搭一个 AI 应用原型</strong><br>有了 Claude Code 这样的工具，做一个「论文知识图谱」这种项目，从想到做只用了几天</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-area" id="learn-chart"></div>
+      </div>
     </div>
   </section>
 
-  <!-- Slide 8: Summary ───────────────────────────── -->
-  <section class="slide" id="slide-8">
+  <!-- Slide 10: 感谢页 -->
+  <section class="slide" id="slide-10">
     <div class="slide-content title-slide">
       <div class="title-block">
-        <h1 class="main-title">Summary</h1>
-        <div id="summary-stats" class="summary-grid"></div>
-        <p class="subtitle" style="margin-top:30px">Thank you!</p>
+        <h1 class="main-title">谢谢大家！</h1>
+        <p class="subtitle">欢迎提问 &amp; 交流</p>
+        <div id="thank-stats" class="summary-grid" style="margin-top:36px"></div>
+        <p class="title-dim" style="margin-top:28px;font-size:13px">
+          📂 项目代码：GitHub 开源 &nbsp;|&nbsp; 🛠 技术栈：Python + Node.js + D3.js + Claude
+        </p>
       </div>
     </div>
   </section>
@@ -127,12 +212,12 @@
 
 <!-- Navigation -->
 <div id="nav">
-  <button id="prev-btn" class="nav-btn" title="Previous (←)">◀</button>
+  <button id="prev-btn" class="nav-btn" title="上一页 (←)">◀</button>
   <div id="slide-dots"></div>
-  <button id="next-btn" class="nav-btn" title="Next (→)">▶</button>
+  <button id="next-btn" class="nav-btn" title="下一页 (→)">▶</button>
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="/js/slides.js"></script>
+<script src="/js/slides.js?v=5"></script>
 </body>
 </html>
