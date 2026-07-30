@@ -498,27 +498,7 @@ function r9(){
 
 // ════════════════ Slide 10: Takeaways ════════════════
 function r10(){
-  const area=document.getElementById('summary-chart');area.innerHTML='';
-  const W=area.clientWidth||500,H=area.clientHeight||400;
-  const svg=d3.select('#summary-chart').append('svg').attr('viewBox',`0 0 ${W} ${H}`);
-
-  const items=[
-    {y:55,i:'',t:'Prompt 是一种新的编程范式',s:'像编写代码一样迭代优化 Prompt'},
-    {y:140,i:'',t:'传统算法与 AI 模型互补',s:'正则负责提取，AI 负责理解'},
-    {y:225,i:'',t:'知识图谱 + LLM 优于纯 RAG',s:'结构化检索比向量搜索更精准'},
-    {y:310,i:'',t:'方法论通用，场景广泛',s:'数学、企业、菜谱、法律——同一架构'},
-  ];
-  items.forEach((x,i)=>{
-    const g=svg.append('g');
-    g.append('circle').attr('cx',45).attr('cy',x.y+14).attr('r',20).attr('fill','#eef2ff').attr('stroke','#2563eb').attr('stroke-width',2);
-    g.append('text').attr('x',45).attr('y',x.y+18).attr('text-anchor','middle').attr('font-size','16px').text(x.i);
-    g.append('text').attr('x',78).attr('y',x.y+8).attr('fill','#1a1e26').attr('font-size','14px').attr('font-weight','600').text(x.t);
-    g.append('text').attr('x',78).attr('y',x.y+28).attr('fill','#5a6070').attr('font-size','10px').text(x.s);
-    if(i<items.length-1){
-      svg.append('line').attr('x1',45).attr('y1',x.y+34).attr('x2',45).attr('y2',items[i+1].y-6)
-        .attr('stroke','#dde1e6').attr('stroke-width',2).attr('stroke-dasharray','4,4');
-    }
-  });
+  // 右栏已移除, 左栏全宽展示, 无需额外渲染
 }
 
 // ════════════════ Slide 11: Thanks ════════════════
