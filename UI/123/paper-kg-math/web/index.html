@@ -10,6 +10,10 @@
 <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
 <!-- ECharts 5 -->
 <script src="https://unpkg.com/echarts@5.6.0/dist/echarts.min.js"></script>
+<!-- KaTeX 数学公式渲染 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 
 <style>
 /* ============================================================
@@ -101,6 +105,11 @@ body {
 }
 .chat-input-area button:hover { background: #3a78b8; }
 .chat-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* KaTeX 公式样式 */
+.msg.bot .katex-display { margin: 8px 0; overflow-x: auto; overflow-y: hidden; }
+.msg.bot .katex { font-size: 1.05em; }
+.msg.bot .katex-display > .katex { font-size: 1.1em; }
 
 /* ===== 右侧图谱面板 ===== */
 .graph-panel { flex: 1; position: relative; }
@@ -281,25 +290,37 @@ createApp({
     function addMessage(role, text) {
       const msg = { role, text, time: nowTime() };
       if (role === "bot") {
-        // 将 <span class="theorem-ref"> 变为可点击的 HTML
-        msg.html = text
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          // 解析 markdown 的 **粗体**
-          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-          // 解析行内代码
-          .replace(/`([^`]+)`/g, "<code>$1</code>")
-          // 恢复 theorem-ref 标签
-          .replace(
-            /&lt;span class="theorem-ref" data-name="([^"]+)"&gt;([^<]*)&lt;\/span&gt;/g,
-            '<span class="theorem-ref" data-name="$1">$2</span>'
-          );
+        // 安全处理：移除 script 标签，保留其他 HTML
+        let html = text.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+        // 解析 markdown **粗体**
+        html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        // 解析行内代码（避开已存在的 HTML 标签）
+        html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+        msg.html = html;
       }
       messages.value.push(msg);
       nextTick(() => {
         const el = chatBox.value;
-        if (el) el.scrollTop = el.scrollHeight;
+        if (!el) return;
+        // 对新插入的消息渲染 KaTeX 公式
+        const lastMsg = el.lastElementChild;
+        if (lastMsg && lastMsg.classList.contains("bot") && lastMsg.innerHTML) {
+          try {
+            renderMathInElement(lastMsg, {
+              delimiters: [
+                { left: "\\[", right: "\\]", display: true },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+              ],
+              throwOnError: false,
+              strict: false,
+            });
+          } catch (e) {
+            console.warn("KaTeX render error:", e);
+          }
+        }
+        el.scrollTop = el.scrollHeight;
       });
     }
 
