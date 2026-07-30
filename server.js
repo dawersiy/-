@@ -25,6 +25,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // output/ 目录: Python pipeline 生成的 JSON 数据文件
 app.use('/data', express.static(OUTPUT_DIR));
 
+// png/ 目录: logo 和装饰图片
+app.use('/png', express.static(path.join(__dirname, 'png')));
+
 // ── API ───────────────────────────────────────────────────────
 
 // GET /api/graph — 返回完整知识图谱数据

@@ -3,131 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 驱动的知识图谱 — AI 暑期学校汇报</title>
-<link rel="stylesheet" href="/css/styles.css?v=2">
+<title>AI 驱动的知识管理智能体 — AI 暑期学校</title>
+<link rel="stylesheet" href="/css/styles.css?v=11">
 </head>
 <body>
 
-<!-- Loading -->
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <div class="msg">正在加载知识图谱数据…</div>
+  <div class="msg">加载中…</div>
   <div class="error-msg"></div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     Slides
-     ═══════════════════════════════════════════ -->
 <div id="slideshow">
 
-  <!-- Slide 0: 标题页 -->
+  <!-- Slide 0: Title -->
   <section class="slide" id="slide-0">
     <div class="slide-content title-slide">
       <div class="title-block">
         <p class="title-conference">AI 暑期学校 · 项目展示</p>
-        <h1 class="main-title">AI 驱动的数学知识图谱</h1>
-        <p class="subtitle">用大语言模型 + 传统代码，自动从论文中构建知识网络</p>
+        <h1 class="main-title">AI 驱动的知识管理智能体</h1>
+        <p class="subtitle">从数学论文知识图谱到通用知识问答系统</p>
         <div class="title-stats" id="title-stats"></div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 1: 我们做了什么 -->
+  <!-- Slide 1: 项目缘起 -->
   <section class="slide" id="slide-1">
     <div class="slide-content">
-      <h2 class="slide-title">我们做了什么？</h2>
+      <h2 class="slide-title">研究动机</h2>
       <div class="split-layout">
         <div class="text-panel">
           <div class="bullet-list">
             <div class="bullet-item">
-              <span class="bullet-icon">📚</span>
-              <div><strong>喂给 AI 26 篇数学论文</strong><br>从 1964 到 2006 年的优化理论经典文献，让 AI 帮忙读懂、分析、整理</div>
+              <div><strong>知识散落各处，难以系统管理</strong><br>企业培训手册、课程课件、个人笔记——大量知识分散在文件系统中，检索困难、关联缺失</div>
             </div>
             <div class="bullet-item">
-              <span class="bullet-icon">🤖</span>
-              <div><strong>AI 帮我们写代码 + 分析内容</strong><br>Claude 负责生成 Python 处理管道，同时用 Prompt 让它自动提取定理、分类关键词、写中文摘要</div>
+              <div><strong>大语言模型使「知识管理智能体」成为可能</strong><br>LLM 具备理解、总结、关联和推理能力，可围绕知识库构建智能助手</div>
             </div>
             <div class="bullet-item">
-              <span class="bullet-icon">🔗</span>
-              <div><strong>自动发现了 5000+ 条知识关联</strong><br>哪条定理推导了哪条？哪些是等价的？AI 帮我们把这些隐藏关系挖了出来</div>
+              <div><strong>以数学论文为切入点验证方法</strong><br>数学论文结构清晰（定理、证明、推论），是验证 AI 知识管理能力的理想试验场</div>
             </div>
             <div class="bullet-item">
-              <span class="bullet-icon">🎯</span>
-              <div><strong>变成了一个能交互的知识图谱</strong><br>不用读 26 篇论文，打开网页就能看到整个领域的知识结构</div>
+              <div><strong>方法论可迁移至任意领域</strong><br>同一套架构：知识提取 → 图谱构建 → 自然语言问答。换数据即换场景</div>
             </div>
           </div>
         </div>
-        <div class="chart-area" id="overview-chart"></div>
+        <div class="chart-area" id="vision-chart"></div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 2: AI 辅助开发流程 -->
+  <!-- Slide 2: 项目全景 -->
   <section class="slide" id="slide-2">
     <div class="slide-content">
-      <h2 class="slide-title">AI 是怎么帮我们的？<span class="sub">人机协作开发模式</span></h2>
+      <h2 class="slide-title">项目全景：两大模块</h2>
+      <div id="overview-dual" class="pipeline-area"></div>
+    </div>
+  </section>
+
+  <!-- Slide 3: AI 辅助开发 -->
+  <section class="slide" id="slide-3">
+    <div class="slide-content">
+      <h2 class="slide-title part-badge"><span>Part 1</span> AI 辅助开发流程</h2>
       <div id="ai-workflow" class="pipeline-area"></div>
     </div>
   </section>
 
-  <!-- Slide 3: Prompt 工程 -->
-  <section class="slide" id="slide-3">
+  <!-- Slide 4: Prompt 工程 -->
+  <section class="slide" id="slide-4">
     <div class="slide-content">
-      <h2 class="slide-title">教会 AI 读懂数学论文<span class="sub">Prompt 工程设计</span></h2>
+      <h2 class="slide-title part-badge"><span>Part 1</span> Prompt 工程设计</h2>
       <div class="split-layout">
         <div class="text-panel">
           <div class="algo-block">
-            <div class="algo-title">我们设计了 4 种 Prompt，各司其职</div>
-            <div class="algo-step"><span class="step-num" style="background:#e05560">1</span> <strong>提取 Prompt：</strong>教 AI 从论文 Markdown 中找出所有定理、引理、推论，区分「作者提出的」和「引用别人的」</div>
-            <div class="algo-step"><span class="step-num" style="background:#e8963e">2</span> <strong>分类 Prompt：</strong>让 AI 给每个定理打上关键词标签，比如 "convergence"、"proximal"、"gradient"，再分配领域分类</div>
-            <div class="algo-step"><span class="step-num" style="background:#4da6d9">3</span> <strong>摘要 Prompt：</strong>用通俗中文解释定理的核心意思，控制在 3 句话以内——让非数学背景的人也能看懂</div>
-            <div class="algo-step"><span class="step-num" style="background:#43b884">4</span> <strong>关系 Prompt：</strong>判断两个定理之间是什么关系——A 推导了 B？A 推广了 B？还是等价？</div>
+            <div class="algo-title">四种 Prompt，各司其职</div>
+            <div class="algo-step"><span class="step-num">1</span> <strong>提取：</strong>从论文 Markdown 中找出定理声明，区分「作者提出」与「引用前人」</div>
+            <div class="algo-step"><span class="step-num">2</span> <strong>分类：</strong>为每个定理分配关键词标签与领域分类（30+ 预定义标签）</div>
+            <div class="algo-step"><span class="step-num">3</span> <strong>摘要：</strong>以通俗中文解释定理核心含义，控制在三句话以内</div>
+            <div class="algo-step"><span class="step-num">4</span> <strong>关系：</strong>判断两定理之间为推导、推广、等价或依赖关系</div>
           </div>
-          <div class="key-insight">
-            <strong>💡 关键经验：</strong>Prompt 写得越具体，AI 输出越靠谱。比如明确说「只提取数学断言，不要算法步骤」「confidence 表示你对边界的信心」，能大幅减少幻觉。
-          </div>
+          <div class="key-insight"><strong>关键经验：</strong>Prompt 需明确约束条件与结构化输出格式，具体程度决定输出质量。</div>
         </div>
         <div id="prompt-demo" class="chart-area"></div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 4: 混合策略 -->
-  <section class="slide" id="slide-4">
-    <div class="slide-content">
-      <h2 class="slide-title">AI + 传统代码：取长补短</h2>
-      <div class="split-layout">
-        <div class="text-panel">
-          <div class="algo-block">
-            <div class="algo-title">为什么不全用 AI？</div>
-            <div class="algo-step">🐌 <strong>速度：</strong>AI 处理一篇论文要几秒，26 篇下来太慢了</div>
-            <div class="algo-step">💰 <strong>成本：</strong>每次都调 API 很贵，而且结果不稳定</div>
-            <div class="algo-step">🔄 <strong>可复现：</strong>同样的输入，AI 可能给出不同的输出</div>
-          </div>
-          <div class="algo-block" style="margin-top:12px">
-            <div class="algo-title">我们的做法：各取所长</div>
-            <div class="algo-step"><span style="color:#43b884">✔ 正则表达式</span> — 负责 80% 的结构化提取（快、稳、免费）</div>
-            <div class="algo-step"><span style="color:#4da6d9">✔ AI 模型</span> — 负责 20% 的智能判断（关键词分类、中文摘要、关系判定）</div>
-            <div class="algo-step"><span style="color:#e8963e">✔ 缓存机制</span> — AI 的结果存下来，下次直接用，不重复花钱</div>
-          </div>
-        </div>
-        <div class="chart-area" id="hybrid-chart"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Slide 5: 处理管道 -->
+  <!-- Slide 5: 管道 + 成果 -->
   <section class="slide" id="slide-5">
     <div class="slide-content">
-      <h2 class="slide-title">数据是怎么被处理的？<span class="sub">6 步管道，8 秒跑完</span></h2>
-      <div id="pipeline-diagram" class="pipeline-area"></div>
-    </div>
-  </section>
-
-  <!-- Slide 6: 数据成果 -->
-  <section class="slide" id="slide-6">
-    <div class="slide-content">
-      <h2 class="slide-title">我们得到了什么？</h2>
+      <h2 class="slide-title part-badge"><span>Part 1</span> 数据处理管道与实验结果</h2>
+      <div id="pipeline-mini" class="pipeline-area" style="max-height:110px;flex:none;margin-bottom:10px"></div>
       <div class="results-grid" id="results-stats"></div>
       <div class="split-layout" style="margin-top:8px">
         <div id="type-bar-chart" class="chart-area"></div>
@@ -136,10 +103,10 @@
     </div>
   </section>
 
-  <!-- Slide 7: 交互式知识图谱 DEMO -->
-  <section class="slide" id="slide-7">
+  <!-- Slide 6: 图谱 DEMO -->
+  <section class="slide" id="slide-6">
     <div class="slide-content full-graph">
-      <h2 class="slide-title overlay-title">🎮 亲手试试！交互式知识图谱</h2>
+      <h2 class="slide-title overlay-title part-badge"><span>Part 1</span> 交互式知识图谱演示</h2>
       <div id="graph-canvas">
         <svg></svg>
         <div class="tooltip" id="tooltip"></div>
@@ -149,75 +116,128 @@
         </div>
         <div class="zoom-ctl">
           <button class="zbtn" id="zin">+</button>
-          <button class="zbtn" id="zout">−</button>
-          <button class="zbtn" id="zfit">⊡</button>
+          <button class="zbtn" id="zout">-</button>
+          <button class="zbtn" id="zfit">Fit</button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 8: 关键发现 + AI 协助总结 -->
-  <section class="slide" id="slide-8">
+  <!-- Slide 7: 论文问答智能体 -->
+  <section class="slide" id="slide-7">
     <div class="slide-content">
-      <h2 class="slide-title">AI 帮我们发现了什么？</h2>
-      <div id="key-theorems" class="key-list"></div>
-    </div>
-  </section>
-
-  <!-- Slide 9: 心得体会 -->
-  <section class="slide" id="slide-9">
-    <div class="slide-content">
-      <h2 class="slide-title">我们学到了什么？<span class="sub">AI 辅助开发的心得</span></h2>
+      <h2 class="slide-title part-badge" style="border-color:#1e40af"><span style="background:#1e40af">Part 2</span> 论文问答智能体：从图谱到对话</h2>
       <div class="split-layout">
         <div class="text-panel">
           <div class="bullet-list">
             <div class="bullet-item">
-              <span class="bullet-icon">💬</span>
-              <div><strong>Prompt 就是新的编程语言</strong><br>写 Prompt 和写代码一样需要迭代调试——第一版通常不够好，要反复优化用词、加约束、给示例</div>
+              <div><strong>上传论文，自动构建知识图谱</strong><br>将 PDF / Markdown 论文放入论文池，系统自动扫描、提取定理、构建知识图谱</div>
             </div>
             <div class="bullet-item">
-              <span class="bullet-icon">🔧</span>
-              <div><strong>AI 写代码 ≠ 不用懂代码</strong><br>AI 生成的代码需要人来审查、调试、拼接。我们负责架构设计，AI 负责填充细节——人机分工才是正解</div>
+              <div><strong>自然语言问答，图谱实时联动</strong><br>以中文提问，系统检索图谱中相关定理，LLM 综合推理后生成答案，同时高亮图谱中对应节点</div>
             </div>
             <div class="bullet-item">
-              <span class="bullet-icon">⚡</span>
-              <div><strong>传统方法 + AI = 最佳组合</strong><br>正则负责快和准，AI 负责理解和判断。纯 AI 慢且贵，纯规则傻且脆——结合使用效果最好</div>
+              <div><strong>AI 自动合并等价定义</strong><br>不同论文中表述不同的等价定义，由 AI 识别并合并，避免知识碎片化</div>
             </div>
             <div class="bullet-item">
-              <span class="bullet-icon">🎓</span>
-              <div><strong>10 分钟就能搭一个 AI 应用原型</strong><br>有了 Claude Code 这样的工具，做一个「论文知识图谱」这种项目，从想到做只用了几天</div>
+              <div><strong>技术栈：</strong>FastAPI + Vue 3 + ECharts + LLM，纯 Python 后端，零构建前端</div>
             </div>
           </div>
         </div>
-        <div class="chart-area" id="learn-chart"></div>
+        <div id="qa-demo" class="chart-area"></div>
       </div>
     </div>
   </section>
 
-  <!-- Slide 10: 感谢页 -->
+  <!-- Slide 8: 问答流程 -->
+  <section class="slide" id="slide-8">
+    <div class="slide-content">
+      <h2 class="slide-title part-badge" style="border-color:#1e40af"><span style="background:#1e40af">Part 2</span> 问答流程：图谱检索增强生成</h2>
+      <div class="split-layout">
+        <div class="text-panel">
+          <div class="algo-block">
+            <div class="algo-title">五步处理流程</div>
+            <div class="algo-step"><span class="step-num">1</span> 用户输入自然语言问题</div>
+            <div class="algo-step"><span class="step-num">2</span> 关键词提取，在知识图谱中检索相关定理</div>
+            <div class="algo-step"><span class="step-num">3</span> 将定理内容作为 Context 注入 LLM Prompt</div>
+            <div class="algo-step"><span class="step-num">4</span> LLM 综合推理，返回 Markdown + KaTeX 渲染答案</div>
+            <div class="algo-step"><span class="step-num">5</span> 同时高亮图谱中关联节点，实现可视化联动</div>
+          </div>
+          <div class="key-insight"><strong>设计思路：</strong>知识图谱提供结构化精准检索，LLM 提供自然语言理解与生成——两者互补，相较于纯向量检索的 RAG 方案更适合具有层级结构的知识。</div>
+        </div>
+        <div id="qa-flow" class="chart-area"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 9: 应用拓展 -->
+  <section class="slide" id="slide-9">
+    <div class="slide-content">
+      <h2 class="slide-title part-badge" style="border-color:#1e40af"><span style="background:#1e40af">Part 3</span> 应用拓展：通用知识管理架构</h2>
+      <div class="split-layout">
+        <div class="text-panel">
+          <div class="algo-block">
+            <div class="algo-title">同一架构，跨领域复用</div>
+            <div class="algo-step"><strong>企业培训知识库：</strong>上传公司手册与培训文档，新员工直接提问获取制度与流程说明</div>
+            <div class="algo-step"><strong>智能菜谱系统：</strong>导入菜谱，构建食材与做法知识网络，支持「现有食材能做什么」查询</div>
+            <div class="algo-step"><strong>法律文书检索：</strong>上传法规文档，提取条款与判例关联，支持自然语言法律咨询</div>
+            <div class="algo-step"><strong>课程知识体系：</strong>导入课件与教材，构建学科知识图谱，回答跨章节概念关联问题</div>
+          </div>
+        </div>
+        <div id="applications-chart" class="chart-area"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10: 收获 -->
   <section class="slide" id="slide-10">
+    <div class="slide-content">
+      <h2 class="slide-title">总结与收获</h2>
+      <div class="split-layout">
+        <div class="text-panel">
+          <div class="bullet-list">
+            <div class="bullet-item">
+              <div><strong>Prompt 是一种新的编程范式</strong><br>像编写代码一样迭代优化 Prompt——添加约束、提供示例、规范输出格式</div>
+            </div>
+            <div class="bullet-item">
+              <div><strong>传统算法与 AI 模型互补</strong><br>正则表达式负责快速结构化提取，AI 负责语义理解与内容生成，二者协同效果最优</div>
+            </div>
+            <div class="bullet-item">
+              <div><strong>知识图谱 + LLM 优于纯 RAG</strong><br>结构化图谱检索比向量相似度搜索更精准，尤其适合具有层级和逻辑结构的知识</div>
+            </div>
+            <div class="bullet-item">
+              <div><strong>方法论通用，应用场景广泛</strong><br>从数学论文到企业文档、菜谱、法律——知识提取→图谱构建→问答的架构具有普适性</div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-area" id="summary-chart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11: 感谢 -->
+  <section class="slide" id="slide-11">
     <div class="slide-content title-slide">
       <div class="title-block">
-        <h1 class="main-title">谢谢大家！</h1>
-        <p class="subtitle">欢迎提问 &amp; 交流</p>
+        <h1 class="main-title">谢谢</h1>
+        <p class="subtitle">欢迎提问与交流</p>
         <div id="thank-stats" class="summary-grid" style="margin-top:36px"></div>
         <p class="title-dim" style="margin-top:28px;font-size:13px">
-          📂 项目代码：GitHub 开源 &nbsp;|&nbsp; 🛠 技术栈：Python + Node.js + D3.js + Claude
+          Python · Node.js · FastAPI · Vue 3 · D3.js · ECharts · Claude
         </p>
       </div>
     </div>
   </section>
 
-</div><!-- /#slideshow -->
+</div>
 
-<!-- Navigation -->
 <div id="nav">
-  <button id="prev-btn" class="nav-btn" title="上一页 (←)">◀</button>
+  <button id="prev-btn" class="nav-btn" title="上一页">&lt;</button>
   <div id="slide-dots"></div>
-  <button id="next-btn" class="nav-btn" title="下一页 (→)">▶</button>
+  <button id="next-btn" class="nav-btn" title="下一页">&gt;</button>
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="/js/slides.js?v=5"></script>
+<script src="/js/slides.js?v=11"></script>
 </body>
 </html>
