@@ -275,13 +275,13 @@ function r5(){
       pSvg.append('polygon').attr('points',`${x+147},51 ${x+155},55 ${x+147},59`).attr('fill','#8893a0');
     }
   });
-  pSvg.append('text').attr('x',pW/2).attr('y',pH-8).attr('text-anchor','middle').attr('fill','#8893a0').attr('font-size','9px').text('~8 秒 · Python 标准库 + Claude API · 零外部依赖');
+  pSvg.append('text').attr('x',pW/2).attr('y',pH-8).attr('text-anchor','middle').attr('fill','#8893a0').attr('font-size','9px').text('~3 分钟 (含 LLM) · Python 标准库 + Claude API · 零外部依赖');
 
   // Stats
   const items=I(),rels=Rels(),papers=P();
   document.getElementById('results-stats').innerHTML=[
     {n:papers.length,l:'篇论文',c:'#b45309'},{n:items.length,l:'知识条目',c:'#2563eb'},
-    {n:rels.length,l:'条关系',c:'#059669'},{n:'~8s',l:'构建耗时',c:'#7c3aed'}
+    {n:rels.length,l:'条关系',c:'#059669'},{n:'~3min',l:'构建耗时 (LLM)',c:'#7c3aed'}
   ].map(s=>`<div class="result-card"><div class="num" style="color:${s.c}">${s.n}</div><div class="lbl">${s.l}</div></div>`).join('');
 
   // Type bar
@@ -421,55 +421,14 @@ function resizeGraph(){if(graphState){graphState.svg.selectAll('*').remove();ren
 // ════════════════ Slide 7: Q&A Interface Intro ════════════════
 function r7(){
   const area=document.getElementById('qa-demo');area.innerHTML='';
-  const W=area.clientWidth||500,H=area.clientHeight||400;
-  const svg=d3.select('#qa-demo').append('svg').attr('viewBox',`0 0 ${W} ${H}`);
-
-  // Mock UI: left chat panel, right graph panel
-  // Left: chat mock
-  svg.append('rect').attr('x',20).attr('y',20).attr('width',W/2-30).attr('height',H-40).attr('rx',8)
-    .attr('fill','#fafbfc').attr('stroke','#dde1e6').attr('stroke-width',1);
-  svg.append('rect').attr('x',20).attr('y',20).attr('width',W/2-30).attr('height',28).attr('rx',8)
-    .attr('fill','#eef2ff');
-  svg.append('text').attr('x',W/4+5).attr('y',38).attr('text-anchor','middle').attr('fill','#333840').attr('font-size','10px').attr('font-weight','600').text('对话面板');
-
-  // Chat bubbles
-  [{y:70,t:'微积分基本定理是什么？',role:'user',c:'#dbeafe'},{y:120,t:'根据知识图谱，微积分第一基本定理指出...',role:'bot',c:'#f0fdf4'}].forEach(b=>{
-    const bx=b.role==='user'?W/2-120:30;
-    svg.append('rect').attr('x',bx).attr('y',b.y).attr('width',W/2-70).attr('height',30).attr('rx',6)
-      .attr('fill',b.c).attr('stroke','#dde1e6').attr('stroke-width',0.5);
-    svg.append('text').attr('x',bx+8).attr('y',b.y+20).attr('fill','#333840').attr('font-size','9px').text(b.t.slice(0,28)+'…');
-  });
-
-  // Input
-  svg.append('rect').attr('x',20).attr('y',H-55).attr('width',W/2-60).attr('height',26).attr('rx',5)
-    .attr('fill','#fff').attr('stroke','#dde1e6');
-  svg.append('text').attr('x',30).attr('y',H-40).attr('fill','#8893a0').attr('font-size','9px').text('输入问题...');
-  svg.append('rect').attr('x',W/2-38).attr('y',H-55).attr('width',30).attr('height',26).attr('rx',5).attr('fill','#2563eb');
-  svg.append('text').attr('x',W/2-23).attr('y',H-40).attr('text-anchor','middle').attr('fill','#fff').attr('font-size','8px').text('发送');
-
-  // Right: graph mock
-  svg.append('rect').attr('x',W/2+10).attr('y',20).attr('width',W/2-30).attr('height',H-40).attr('rx',8)
-    .attr('fill','#fafbfc').attr('stroke','#dde1e6').attr('stroke-width',1);
-  svg.append('rect').attr('x',W/2+10).attr('y',20).attr('width',W/2-30).attr('height',28).attr('rx',8)
-    .attr('fill','#fef3c7');
-  svg.append('text').attr('x',W*3/4-5).attr('y',38).attr('text-anchor','middle').attr('fill','#333840').attr('font-size','10px').attr('font-weight','600').text('知识图谱联动');
-
-  // Mock nodes in graph
-  const gx=W*3/4-5,gy=H/2+10;
-  [{dx:0,dy:-30,c:'#7c3aed'},{dx:25,dy:15,c:'#2563eb'},{dx:-25,dy:15,c:'#dc2626'},{dx:0,dy:50,c:'#059669'}].forEach(n=>{
-    svg.append('circle').attr('cx',gx+n.dx).attr('cy',gy+n.dy).attr('r',14).attr('fill',n.c).attr('opacity',0.7);
-    // Highlight ring on one node
-    if(n.dx===0&&n.dy===-30){
-      svg.append('circle').attr('cx',gx+n.dx).attr('cy',gy+n.dy).attr('r',20).attr('fill','none').attr('stroke','#f59e0b').attr('stroke-width',2.5).attr('stroke-dasharray','3,2');
-    }
-  });
-  // Edges
-  [{x1:gx,y1:gy-30,x2:gx+25,y2:gy+15},{x1:gx,y1:gy-30,x2:gx-25,y2:gy+15},{x1:gx,y1:gy-30,x2:gx,y2:gy+50}].forEach(e=>{
-    svg.append('line').attr('x1',e.x1).attr('y1',e.y1).attr('x2',e.x2).attr('y2',e.y2).attr('stroke','#cbd5e1').attr('stroke-width',1);
-  });
-
-  // Labels
-  svg.append('text').attr('x',W/2+10).attr('y',H-16).attr('fill','#8893a0').attr('font-size','8px').text('图谱自动高亮关联节点');
+  area.style.display='flex';area.style.alignItems='center';area.style.justifyContent='center';
+  area.style.background='transparent';area.style.border='none';area.style.overflow='hidden';
+  const img=document.createElement('img');
+  img.src='/png/应用展示插图.png';
+  img.alt='论文问答智能体界面展示';
+  img.style.width='100%';img.style.height='100%';
+  img.style.objectFit='contain';img.style.borderRadius='6px';
+  area.appendChild(img);
 }
 
 // ════════════════ Slide 8: Q&A Flow ════════════════
