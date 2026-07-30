@@ -58,9 +58,9 @@ def generate_html(network: dict = None):
         if formulas: d['fm'] = [f[:800] for f in list(dict.fromkeys(formulas))[:6]]
         if d: detail_map[str(idx)] = d
 
-    data_js = f'''const PAPERS={json.dumps(papers,ensure_ascii=False)};
-const SPL={json.dumps(same_paper_links,ensure_ascii=False)};
-const GRAPH={json.dumps({"nd":compact_nodes,"ln":compact_links,"dt":detail_map},ensure_ascii=False)};'''
+    data_js = f'''const PAPERS={json.dumps(papers,ensure_ascii=False,separators=(',',':'))};
+const SPL={json.dumps(same_paper_links,ensure_ascii=False,separators=(',',':'))};
+const GRAPH={json.dumps({"nd":compact_nodes,"ln":compact_links,"dt":detail_map},ensure_ascii=False,separators=(',',':'))};'''
 
     html = f'''<!DOCTYPE html>
 <html lang="zh-CN">
@@ -72,8 +72,8 @@ const GRAPH={json.dumps({"nd":compact_nodes,"ln":compact_links,"dt":detail_map},
 *{{margin:0;padding:0;box-sizing:border-box}}
 body{{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;font-size:12px}}
 #container{{display:flex;height:100vh}}
-#graph{{flex:1;position:relative;background:radial-gradient(ellipse at center,#162435 0%,var(--bg) 70%)}}
-#graph svg{{width:100%;height:100%}}
+#graph{{flex:1;position:relative;background:radial-gradient(ellipse at center,#162435 0%,var(--bg) 70%);contain:layout style}}
+#graph svg{{width:100%;height:100%;contain:layout style}}
 #sidebar{{width:340px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}}
 #sb-head{{padding:14px 16px 10px;border-bottom:1px solid var(--border)}}
 #sb-head h1{{font-size:14px;font-weight:600;color:#e0e8f0;letter-spacing:0.3px}}
@@ -111,9 +111,9 @@ select:focus,input:focus{{border-color:var(--acc)}}
 .node{{cursor:pointer}}
 .node circle{{stroke-width:1.5;stroke-opacity:0.7}}
 .node text{{font-size:8px;fill:#8090a0;pointer-events:none;text-anchor:middle;font-weight:500}}
-.link{{stroke-opacity:0.28;transition:stroke-opacity 0.15s}}
+.link{{stroke-opacity:0.28;transition:stroke-opacity 0.1s;pointer-events:none}}
 .link:hover{{stroke-opacity:0.85}}
-.link-sp{{pointer-events:none}}
+.link-sp{{pointer-events:none;will-change:opacity}}
 .zoom-ctl{{position:absolute;bottom:14px;right:14px;display:flex;flex-direction:column;gap:3px;z-index:50}}
 .zbtn{{width:30px;height:30px;border-radius:5px;background:var(--panel);border:1px solid var(--border);color:var(--dim);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}}
 .zbtn:hover{{background:#1a2e40;color:#d0d8e0;border-color:var(--acc)}}
@@ -167,9 +167,9 @@ select:focus,input:focus{{border-color:var(--acc)}}
 <script>{data_js}</script>
 <script>
 // ===== Color Scheme =====
-const CM={{theorem:'#e05560',lemma:'#4da6d9',corollary:'#43b884',definition:'#9b6cc4',proposition:'#e8963e'}};
+const CM={{theorem:'#ff5252',lemma:'#448aff',corollary:'#69f0ae',definition:'#e040fb',proposition:'#ffab40'}};
 const TCN={{theorem:'Theorem',lemma:'Lemma',corollary:'Corollary',definition:'Definition',proposition:'Proposition'}};
-const RCM={{derives:'#e05560',generalizes:'#4da6d9',equivalent:'#43b884',depends:'#7a8a9a',same_paper:'#3a4a60'}};
+const RCM={{derives:'#ff5252',generalizes:'#448aff',equivalent:'#69f0ae',depends:'#ffab40',same_paper:'#b388ff'}};
 const RCN={{derives:'Derives',generalizes:'Generalizes',equivalent:'Equivalent',depends:'Depends',same_paper:'Same Paper'}};
 const SZ={{theorem:14,lemma:12,corollary:10,definition:13,proposition:12}};
 
@@ -177,7 +177,7 @@ const SZ={{theorem:14,lemma:12,corollary:10,definition:13,proposition:12}};
 const container=document.getElementById('graph');
 const svg=d3.select('#graph svg');
 const W=container.clientWidth,H=container.clientHeight;
-const g=svg.append('g');
+const g=svg.append('g').attr('style','will-change:transform');
 const zoom=d3.zoom().scaleExtent([0.08,5.5]).on('zoom',e=>{{g.attr('transform',e.transform);onZoom(e);}});
 svg.call(zoom);
 
@@ -187,8 +187,8 @@ nodes.forEach((n,i)=>n._i=i);
 // Layer 0: same-paper edges (bottom)
 const splG=g.append('g');
 const splSel=splG.selectAll('line').data(SPL).join('line')
-.attr('class','link-sp').attr('stroke',RCM.same_paper).attr('stroke-width',0.6)
-.attr('stroke-dasharray','2,6').attr('stroke-opacity',0.12)
+.attr('class','link-sp').attr('stroke',RCM.same_paper).attr('stroke-width',0.5)
+.attr('stroke-dasharray','2,8').attr('stroke-opacity',0.15)
 .attr('x1',d=>nodes[d.s].x).attr('y1',d=>nodes[d.s].y)
 .attr('x2',d=>nodes[d.t].x).attr('y2',d=>nodes[d.t].y);
 
@@ -197,8 +197,8 @@ const linkG=g.append('g');
 const linkSel=linkG.selectAll('line').data(links).join('line')
 .attr('class','link')
 .attr('stroke',d=>RCM[d.tp]||'#7a8a9a')
-.attr('stroke-width',d=>d.tp==='derives'?2.2:d.tp==='generalizes'?1.6:1.1)
-.attr('stroke-dasharray',d=>d.tp==='depends'?'5,3':d.tp==='equivalent'?'6,3':d.tp==='generalizes'?'8,2':'none')
+.attr('stroke-width',d=>d.tp==='derives'?2:d.tp==='generalizes'?1.5:d.tp==='equivalent'?1.5:d.tp==='depends'?1:0.5)
+.attr('stroke-dasharray',d=>d.tp==='depends'?'3,4':d.tp==='equivalent'?'8,4':d.tp==='generalizes'?'6,3':'none')
 .attr('x1',d=>nodes[d.s].x).attr('y1',d=>nodes[d.s].y)
 .attr('x2',d=>nodes[d.t].x).attr('y2',d=>nodes[d.t].y);
 
@@ -213,15 +213,14 @@ nodeSel.append('circle').attr('r',d=>SZ[d.t]+Math.min(d.s*2,6))
 .attr('stroke',d=>d3.color(CM[d.t]).darker(0.6))
 .on('click',(e,d)=>showDetail(d))
 .on('mouseover',function(e,d){{
-    const r=SZ[d.t]+Math.min(d.s*2,6);d3.select(this).transition().duration(120).attr('r',r+3);
+    const r=SZ[d.t]+Math.min(d.s*2,6);d3.select(this).transition().duration(80).attr('r',r+3);
     const conn=new Set();links.forEach(l=>{{if(l.s===d._i)conn.add(l.t);if(l.t===d._i)conn.add(l.s);}});
-    nodeSel.selectAll('circle').attr('opacity',n=>n._i===d._i||conn.has(n._i)?1:0.15);
-    linkSel.attr('opacity',l=>l.s===d._i||l.t===d._i?0.9:0.04);
-    splSel.attr('opacity',l=>l.s===d._i||l.t===d._i?0.3:0.02);
+    nodeSel.selectAll('circle').attr('opacity',n=>n._i===d._i||conn.has(n._i)?1:0.12);
+    linkSel.attr('opacity',l=>l.s===d._i||l.t===d._i?0.85:0.02);
     showTooltip(e,d);
 }})
 .on('mouseout',function(e,d){{
-    d3.select(this).transition().duration(120).attr('r',SZ[d.t]+Math.min(d.s*2,6));
+    d3.select(this).transition().duration(80).attr('r',SZ[d.t]+Math.min(d.s*2,6));
     nodeSel.selectAll('circle').attr('opacity',1);linkSel.attr('opacity',0.28);splSel.attr('opacity',0.12);
     hideTooltip();
 }});
@@ -256,10 +255,12 @@ function applyAllFilters(){{
 
 // ===== Viewport Culling + LOD =====
 let vt;
-function onZoom(e){{clearTimeout(vt);vt=setTimeout(updateVis,80);}}
+function onZoom(e){{clearTimeout(vt);vt=setTimeout(updateVis,40);}}
 function updateVis(){{
     const t=d3.zoomTransform(svg.node()),s=t.k,vx=-t.x/s,vy=-t.y/s,vw=W/s,vh=H/s,pad=50;
     const lo=s<0.35,mid=s<0.75,hi=s>1.8;
+    // 极远: 跳过详细渲染
+    if(lo){{nodeSel.each(function(d){{d3.select(this).style('display',isNodeVisible(d._i)?null:'none');}});nodeSel.selectAll('text').attr('opacity',0);nodeSel.selectAll('circle').attr('r',3);linkSel.style('display','none');splSel.style('display','none');return;}}
     nodeSel.each(function(d){{
         const inP=isNodeVisible(d._i);
         const inV=d.x>vx-pad&&d.x<vx+vw+pad&&d.y>vy-pad&&d.y<vy+vh+pad;
@@ -330,11 +331,11 @@ function hideTooltip(){{d3.select('#tooltip').style('opacity',0);}}
     // Legend
     const ld=document.getElementById('legend');
     Object.entries(CM).forEach(([t,c])=>ld.innerHTML+=`<div class="lgd-item"><span class="lgd-node" style="background:${{c}}"></span>${{TCN[t]}}</div>`);
-    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line solid" style="border-color:${{RCM.derives}}"></span>Derives</div>`;
-    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line dashed" style="border-color:${{RCM.generalizes}}"></span>Generalizes</div>`;
-    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line dashed" style="border-color:${{RCM.equivalent}};border-top-style:dashed"></span>Equivalent</div>`;
-    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line dashed" style="border-color:${{RCM.depends}}"></span>Depends</div>`;
-    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line dotted" style="border-color:${{RCM.same_paper}}"></span>Same Paper</div>`;
+    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line solid" style="border-color:${{RCM.derives}};border-width:2px"></span>Derives</div>`;
+    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line solid" style="border-color:${{RCM.generalizes}};border-top-style:dashed;border-top-width:1.5px"></span>Generalizes</div>`;
+    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line solid" style="border-color:${{RCM.equivalent}};border-top-style:dashed;border-top-width:1.5px"></span>Equivalent</div>`;
+    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line solid" style="border-color:${{RCM.depends}};border-top-style:dotted;border-top-width:1.5px"></span>Depends</div>`;
+    ld.innerHTML+=`<div class="lgd-item"><span class="lgd-line solid" style="border-color:${{RCM.same_paper}};border-top-width:0.5px"></span>Same Paper</div>`;
 
     // Zoom
     document.getElementById('zin').addEventListener('click',()=>svg.transition().duration(200).call(zoom.scaleBy,1.3));
